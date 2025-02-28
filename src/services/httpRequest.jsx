@@ -48,7 +48,7 @@ export const basicAuthen = (user) => ({
   withCredentials: true,
   auth: {
     username: user.uid,
-    password: user.pw,
+    password: user.password,
   },
   crossdomain: true,
 });

@@ -17,7 +17,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import { TextField, Tooltip, Typography } from "@mui/material";
-import { Add, ArrowDownward, ArrowUpward, Close, Delete, Edit, Save } from "@mui/icons-material";
+import { Add, ArrowDownward, ArrowUpward, Close, Delete, Edit, InfoOutlined, Save } from "@mui/icons-material";
 import { redAccent } from "../theme";
 import * as apiService from "../services/apiService";
 import { grey } from "@mui/material/colors";
@@ -249,7 +249,7 @@ Row.propTypes = {
 function Modulverwaltung() {
   const [openAll, setOpenAll] = useState(false);
   const [rows, setRows] = useState([]);
-  const [semester, setSemester] = useState("ss24");
+  const [semester, setSemester] = useState(sessionStorage.getItem("currentSemester"));
   const [sortConfig, setSortConfig] = useState({ key: "modul_id", direction: "ascending" });
 
   const [confirmDeleteModul, setConfirmDeleteModul] = useState(false);
@@ -492,6 +492,11 @@ function Modulverwaltung() {
                   <Tooltip arrow title="Neues Modul hinzufügen">
                     <IconButton sx={{ color: "white" }} onClick={handleOpenAddNewModul}>
                       <Add />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip arrow title="Bei Änderung der Modul-ID bitte das Modul löschen und erneut hinzufügen">
+                    <IconButton sx={{ color: "white", position: "absolute", top: 2, right: 8 }}>
+                      <InfoOutlined />
                     </IconButton>
                   </Tooltip>
                 </TableCell>

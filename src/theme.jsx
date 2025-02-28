@@ -17,10 +17,6 @@ export const redAccent = {
 const theme = createTheme({
   deDE,
   palette: {
-    // background: {
-    //   default: grey[200],
-    //   paper: "#ffffff",
-    // },
     primary: {
       main: redAccent[500],
     },

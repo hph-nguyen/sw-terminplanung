@@ -22,9 +22,11 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Benutzerverwaltung from "../components/Benutzerverwaltung";
 import Terminplanung from "../components/Terminplanung";
 import Modulverwaltung from "../components/Modulverwaltung";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AccountCircle, VpnKey } from "@mui/icons-material";
 import Zugangscode from "../components/Zugangscode";
+import ConfirmDialog from "../shared/ConfirmDialog";
+import { useAuth } from "../hooks/useAuth";
 
 const drawerWidth = 240;
 
@@ -114,16 +116,30 @@ export default function HomePage() {
   const theme = useTheme();
   const [open, setOpen] = useState(true);
   const [selectedComponent, setSelectedComponent] = useState(null);
+  const [openLogOutConfirm, setOpenLogOutConfirm] = useState(false);
+  const { logout } = useAuth();
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
+
+  useEffect(() => {
+    const storedTab = sessionStorage.getItem("currentTab");
+    if (storedTab) {
+      const foundItem = menuItems.find((item) => item.item === storedTab);
+      if (foundItem) {
+        setSelectedComponent(foundItem.component);
+      }
+    }
+  }, []);
 
   const handleDrawerClose = () => {
     setOpen(false);
   };
 
-  const handleItemClick = (component) => {
+  const handleItemClick = (component, currentItem) => {
     setSelectedComponent(component);
+    sessionStorage.setItem("currentTab", currentItem);
   };
 
   return (
@@ -151,7 +167,7 @@ export default function HomePage() {
             src={OhmLogo}
           />
           <Box sx={{ ml: "auto" }}>
-            <Button variant="outlined">
+            <Button variant="outlined" onClick={() => setOpenLogOutConfirm(true)}>
               <AccountCircle sx={{ mr: 1 }} />
               Abmelden
             </Button>
@@ -170,7 +186,7 @@ export default function HomePage() {
           {menuItems.map((itemData, index) => (
             <ListItem key={itemData.item} disablePadding sx={{ display: "block" }}>
               <ListItemButton
-                onClick={() => handleItemClick(itemData.component)}
+                onClick={() => handleItemClick(itemData.component, itemData.item)}
                 sx={[
                   {
                     minHeight: 48,
@@ -223,6 +239,17 @@ export default function HomePage() {
         <DrawerHeader />
         {selectedComponent ? selectedComponent : <Modulverwaltung />}
       </Box>
+      <ConfirmDialog
+        msg={"Sind Sie sicher, dass Sie ausloggen möchten?"}
+        open={openLogOutConfirm}
+        onClose={() => setOpenLogOutConfirm(false)}
+        onDecline={() => setOpenLogOutConfirm(false)}
+        onConfirm={() => {
+          setOpenLogOutConfirm(false);
+          sessionStorage.clear();
+          logout();
+        }}
+      ></ConfirmDialog>
     </Box>
   );
 }
