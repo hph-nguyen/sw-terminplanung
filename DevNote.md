@@ -13,7 +13,8 @@ const terminList = [{}];
 
 ### Change in Backend:
 
-- Adding to prevent the pop-up login from API via browser.![alt text](image.png)
+- Adding to prevent the pop-up login from API via browser.  
+  ![alt text](image.png)
 
 ```java
 .httpBasic()
@@ -27,5 +28,5 @@ response.setHeader("WWW-Authenticate", ""); // Removes the browser login popup
 })
 ```
 
-After apply, access directly to API through browser will nomore work.
+After apply, access directly to API through browser will nomore work.  
 ![alt text](image-1.png)
