@@ -5,7 +5,7 @@ import { Avatar, Box, Button, Typography } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import * as apiService from "../services/apiService";
-import Header from "../components/Header";
+import Header from "../shared/Header";
 import { LockPerson } from "@mui/icons-material";
 import { redAccent } from "../theme";
 
