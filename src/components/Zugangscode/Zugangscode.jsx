@@ -16,8 +16,8 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Formik } from "formik";
-import { FormInput, FormSelect } from "./formComponents";
-import * as apiService from "../services/apiService";
+import { FormInput, FormSelect } from "../formComponents";
+import * as apiService from "../../services/apiService";
 import { grey } from "@mui/material/colors";
 
 // const initialData = [{ code: "123456", semestername: "ss24" }];

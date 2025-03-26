@@ -1,0 +1,32 @@
+.calHeight {
+  height: 50vh;
+}
+.rbc-allday-cell {
+  display: none;
+}
+
+.rbc-m-b-negative-3 {
+  display: none;
+}
+
+.rbc-button-link {
+  font-weight: bold;
+}
+
+/* Remove Sunday in month view */
+/* .rbc-month-header > :last-child {
+  display: none;
+}
+
+.rbc-row-segment {
+  flex-basis: 20% !important;
+  max-width: 20% !important;
+}
+
+.rbc-month-row > .rbc-row-bg > :last-child {
+  display: none;
+}
+
+.rbc-row-content > .rbc-row > .rbc-date-cell:last-child {
+  display: none;
+} */

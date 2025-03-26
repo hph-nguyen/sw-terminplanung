@@ -179,6 +179,15 @@ export const deleteZugangscode = async (semester, body) => {
   }
 };
 
+export const putTermin = async (semester, termin, benutzerId) => {
+  try {
+    const res = await httpRequest.put(`${checkSemesterSlash(semester)}/swWunschtermine/${benutzerId}`, termin);
+    return res;
+  } catch (err) {
+    return err;
+  }
+};
+
 export const addZugangscode = async (semester, body) => {
   try {
     const res = await httpRequest.post(

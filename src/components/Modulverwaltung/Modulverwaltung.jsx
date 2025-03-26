@@ -18,12 +18,12 @@ import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import { TextField, Tooltip, Typography } from "@mui/material";
 import { Add, ArrowDownward, ArrowUpward, Close, Delete, Edit, InfoOutlined, Save } from "@mui/icons-material";
-import { redAccent } from "../theme";
-import * as apiService from "../services/apiService";
+import { redAccent } from "../../theme";
+import * as apiService from "../../services/apiService";
 import { grey } from "@mui/material/colors";
-import MUIDialog from "../shared/MUIDialog";
+import MUIDialog from "../../shared/MUIDialog";
 import { AddNewLv, AddNewModul } from "./ModulVerwaltungsFormen";
-import ConfirmDialog from "../shared/ConfirmDialog";
+import ConfirmDialog from "../../shared/ConfirmDialog";
 
 /**
  * TABLE ROWS DEFINITION
