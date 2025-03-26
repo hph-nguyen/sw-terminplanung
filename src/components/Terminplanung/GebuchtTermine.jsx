@@ -54,6 +54,7 @@ const GebuchtTermine = ({ height = "30vh", hideFullScreenButton = false, handleB
       // Remove event listener when component unmounts
       channel.removeEventListener("message", handleChannelMessage);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleEditClick = (e) => () => {
@@ -266,7 +267,7 @@ const GebuchtTermine = ({ height = "30vh", hideFullScreenButton = false, handleB
       {/* <MUIDialog
         onOpen={openForm}
         onClose={() => setOpenForm(false)}
-        content={<BuchTermin initialValues={terminToEdit} onSubmit={handleBook} />}
+        content={<BuchTerminForm initialValues={terminToEdit} onSubmit={handleBook} />}
         disableBackdropClick="true"
         title={"Gebuchten Termin ändern"}
       /> */}
