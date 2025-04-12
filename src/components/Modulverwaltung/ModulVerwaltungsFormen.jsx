@@ -91,20 +91,3 @@ export function AddNewLv({ onSubmit, modul_id = "", modul_name = "" }) {
     </Box>
   );
 }
-
-// export function ChangeModul() {
-//   const isNonMobile = useMediaQuery("(min-width:600px)");
-//   const checkoutSchema = yup.object().shape({
-//     modul_id: yup.string().required(),
-//     name: yup.string().required(),
-//   });
-// }
-
-// export function ChangeLv() {
-//   const isNonMobile = useMediaQuery("(min-width:600px)");
-//   const checkoutSchema = yup.object().shape({
-//     id: yup.string().required(),
-//     modul_id: yup.string().required(),
-//     name: yup.string().required(),
-//   });
-// }

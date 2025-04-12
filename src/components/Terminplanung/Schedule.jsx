@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useCallback, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 import weekOfYear from "dayjs/plugin/weekOfYear";
@@ -9,6 +10,7 @@ import timezone from "dayjs/plugin/timezone";
 import { Paper } from "@mui/material";
 import CustomWeekView from "./CustomWeekView";
 import { redAccent } from "../../theme";
+import { generateRecurringEvents } from "../../services/timeUtils";
 
 dayjs.extend(timezone);
 dayjs.locale("de");
@@ -45,30 +47,44 @@ const resources = [
   { resourceId: "BB203", resourceTitle: "BB203" },
   { resourceId: "BLT01", resourceTitle: "BLT01" },
   { resourceId: "BL317", resourceTitle: "BL317" },
+  { resourceId: "BL312", resourceTitle: "BL312" },
+  { resourceId: "BL315", resourceTitle: "BL315" },
 ];
 
-const events = [
-  {
-    id: 1,
-    title: "Langes Ereignis",
-    start: dayjs("2025-03-19T08:00").toDate(),
-    end: dayjs("2025-03-19T20:00").toDate(),
-    resourceId: "BL317",
-  },
-  {
-    id: 5,
-    title: "Short Event",
-    start: dayjs("2025-03-17T09:00").toDate(),
-    end: dayjs("2025-03-17T10:30").toDate(),
-    resourceId: "BB006",
-  },
-];
+const eventFromAPI = {
+  id: 3,
+  title: "RR-Event",
+  start: dayjs("2025-03-01T08:00").toDate(),
+  end: dayjs("2025-05-30T23:00").toDate(),
+  resourceId: "BL317",
+  weekday: "0",
+  turnus: "W",
+  dauer: 90,
+};
+// const eventFromAPI2 = {
+//   id: 3,
+//   title: "RR-Event",
+//   start: dayjs("2025-03-31T08:00").toDate(),
+//   end: dayjs("2025-05-19T00:00").toDate(),
+//   resourceId: "BL317",
+//   weekday: "0",
+//   turnus: "W",
+//   dauer: 90
+// };
+
+// Use the generateRecurringEvents function to create recurring events
+const recurringEvents = generateRecurringEvents(eventFromAPI);
+// const newEvents = generateRecurringEvents(eventFromAPI2)
+
+const events = [...recurringEvents];
+
+// console.log(events);
 
 const ColoredDateCellWrapper = ({ children }) => {
   return <div style={{ backgroundColor: redAccent[100] }}>{children}</div>;
 };
 
-export default function Dayjs({ ...props }) {
+export default function Schedule({ ...props }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState(Views.WEEK);
   const [groupResourcesOnWeek, setGroupResourcesOnWeek] = useState(true);
@@ -79,9 +95,9 @@ export default function Dayjs({ ...props }) {
         timeSlotWrapper: ColoredDateCellWrapper,
         toolbar: CustomToolbar,
       },
-      defaultDate: new Date(2025, 3, 11),
+      defaultDate: dayjs("2025-13-15").toDate(),
       min: dayjs().startOf("day").add(8, "hours").toDate(),
-      max: dayjs().endOf("day").subtract(3, "hours").toDate(),
+      max: dayjs().endOf("day").subtract(2.5, "hours").toDate(),
       views: {
         month: true,
         day: true,
@@ -92,13 +108,18 @@ export default function Dayjs({ ...props }) {
   );
 
   // Handle date click in Month View
-  const handleDateClick = (slot) => {
+  const handleSelectSlot = (slot) => {
+    if (holidays.some((holiday) => dayjs(slot.start).isSame(dayjs(holiday), "day"))) {
+      alert("This date is a holiday, you cannot select it.");
+      return; // Prevent view change
+    }
+
+    // If it's not a holiday, proceed with switching views
     if (currentView === Views.MONTH) {
       setCurrentDate(slot.start);
       setCurrentView(Views.WEEK);
     }
   };
-
   const handleSelectEvent = (event) => {
     // When click on Event in Month View --> Jump back to Week View
     if (currentView === Views.MONTH) {
@@ -108,16 +129,29 @@ export default function Dayjs({ ...props }) {
     }
   };
 
-  // const dayPropGetter = (date) => {
-  //   if (dayjs(date).day() === 0) {
-  //     return {
-  //       style: {
-  //         display: "none", // Hide Sunday
-  //       },
-  //     };
+  // const backgroundEvents = [
+  //   {
+  //     title: "Background event",
+  //     start: dayjs("2025-03-28T08:00").toDate(),
+  //     end: dayjs("2025-03-28T21:00").toDate(), // Ensure it fits within max time
+  //     resourceId: "BB006",
   //   }
-  //   return {};
-  // };
+  // ];
+
+  const holidays = ["2025-03-28", "2025-04-15", "2025-12-25"]; // Add more dates as needed
+
+  // const dayPropGetter = useCallback(
+  //   (date) => {
+  //     return holidays.some((holiday) => dayjs(date).isSame(dayjs(holiday), 'day'))
+  //       ? {
+  //           style: {
+  //             backgroundColor: 'lightgray',
+  //           },
+  //         }
+  //       : {};
+  //   },
+  //   []
+  // );
 
   return (
     <Paper elevation={0}>
@@ -131,7 +165,7 @@ export default function Dayjs({ ...props }) {
           Gruppieren Räume in Tag
         </label>
       </div>
-      <div className="calHeight" {...props}>
+      <div style={{ height: props.height }} {...props}>
         <Calendar
           selectable
           culture="de"
@@ -139,6 +173,8 @@ export default function Dayjs({ ...props }) {
           date={currentDate}
           view={currentView}
           events={events}
+          // backgroundEvents={backgroundEvents}
+          dayLayoutAlgorithm="no-overlap"
           localizer={djLocalizer}
           min={min}
           max={max}
@@ -154,7 +190,7 @@ export default function Dayjs({ ...props }) {
           }}
           step={15}
           onSelecting={() => {}} // available in only Time View (week, work_week)
-          onSelectSlot={handleDateClick} // available in all views (week, work_week, day, month)
+          onSelectSlot={handleSelectSlot} // available in all views (week, work_week, day, month)
           onSelectEvent={handleSelectEvent}
           resources={resources}
           resourceIdAccessor="resourceId"

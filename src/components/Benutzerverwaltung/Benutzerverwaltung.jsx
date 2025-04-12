@@ -1,4 +1,8 @@
+/* eslint-disable no-unused-vars */
 import { RRule } from "rrule";
+import DemoCustomCalendar from "./DemoCustomCalendar";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const Benutzerverwaltung = () => {
   const rule = new RRule({
@@ -12,14 +16,11 @@ const Benutzerverwaltung = () => {
   const dates = rule.all();
 
   return (
-    <div className="p-4 max-w-md mx-auto bg-white shadow-md rounded-xl">
-      <h2 className="text-xl font-bold mb-2">Test RRULE Recurring Events</h2>
-      <ul className="list-disc pl-5">
-        {dates.map((date, index) => (
-          <li key={index}>{date.toISOString()}</li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DemoCustomCalendar />
+      </LocalizationProvider>
+    </>
   );
 };
 

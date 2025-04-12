@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { grey } from "@mui/material/colors";
 import { EventAvailable, EventBusy } from "@mui/icons-material";
 import { Fullscreen } from "@mui/icons-material";
+import MUIAccordion from "../../shared/MUIAccordion";
 
 const CustomToolbar = ({ hideFullScreenButton = false }) => {
   const handleOpenFullView = () => {
@@ -32,7 +33,7 @@ const CustomToolbar = ({ hideFullScreenButton = false }) => {
   );
 };
 
-const GebuchtTermine = ({ height = "30vh", hideFullScreenButton = false, handleBookAppt }) => {
+const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleBookAppt }) => {
   const [rows, setRows] = useState([]);
   const [openForm, setOpenForm] = useState(false);
   const [terminToEdit, setTerminToEdit] = useState({});
@@ -265,12 +266,12 @@ const GebuchtTermine = ({ height = "30vh", hideFullScreenButton = false, handleB
       </Box>
 
       {/* <MUIDialog
-        onOpen={openForm}
-        onClose={() => setOpenForm(false)}
-        content={<BuchTerminForm initialValues={terminToEdit} onSubmit={handleBook} />}
-        disableBackdropClick="true"
-        title={"Gebuchten Termin ändern"}
-      /> */}
+          onOpen={openForm}
+          onClose={() => setOpenForm(false)}
+          content={<BuchTerminForm initialValues={terminToEdit} onSubmit={handleBook} />}
+          disableBackdropClick="true"
+          title={"Gebuchten Termin ändern"}
+        /> */}
     </Box>
   );
 };

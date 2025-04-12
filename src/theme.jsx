@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import { grey } from "@mui/material/colors";
 // import { grey } from "@mui/material/colors";
 import { deDE } from "@mui/x-data-grid/locales";
 
@@ -19,6 +20,9 @@ const theme = createTheme({
   palette: {
     primary: {
       main: redAccent[500],
+    },
+    secondary: {
+      main: grey[300],
     },
   },
   typography: {

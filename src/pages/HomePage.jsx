@@ -27,7 +27,6 @@ import { AccountCircle, VpnKey } from "@mui/icons-material";
 import Zugangscode from "../components/Zugangscode/Zugangscode";
 import ConfirmDialog from "../shared/ConfirmDialog";
 import { useAuth } from "../hooks/useAuth";
-import { redAccent } from "../theme";
 
 const drawerWidth = 240;
 

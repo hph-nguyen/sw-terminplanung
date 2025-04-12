@@ -1,7 +1,7 @@
-.calHeight {
-  height: 50vh;
-}
-.rbc-allday-cell {
+/* .calHeight {
+  height: 45vh;
+} */
+/* .rbc-allday-cell {
   display: none;
 }
 
@@ -12,8 +12,11 @@
 .rbc-button-link {
   font-weight: bold;
 }
+.rbc-today {
+  background-color: transparent !important;
+} */
 
-/* Remove Sunday in month view */
+/* Remove Sunday in month view --> Fehler: Event align not correctly*/
 /* .rbc-month-header > :last-child {
   display: none;
 }
