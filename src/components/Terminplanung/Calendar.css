@@ -1,35 +1,64 @@
-/* .calHeight {
-  height: 45vh;
-} */
-/* .rbc-allday-cell {
+.rbc-header {
+  color: white;
+  font-size: 14px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px !important;
+  background: #c72426 !important;
+}
+
+.rbc-allday-cell {
   display: none;
 }
 
 .rbc-m-b-negative-3 {
-  display: none;
+  display: none !important;
 }
 
-.rbc-button-link {
-  font-weight: bold;
-}
-.rbc-today {
-  background-color: transparent !important;
-} */
-
-/* Remove Sunday in month view --> Fehler: Event align not correctly*/
-/* .rbc-month-header > :last-child {
-  display: none;
+.rbc-time-header-cell .rbc-today {
+  background-color: #dd7c7d !important;
 }
 
-.rbc-row-segment {
-  flex-basis: 20% !important;
-  max-width: 20% !important;
+.rbc-time-slot {
+  color: #74a4c3;
+  z-index: 1;
 }
 
-.rbc-month-row > .rbc-row-bg > :last-child {
-  display: none;
+.rbc-time-slot:not(.rbc-today .rbc-time-slot) {
+  background-color: #eff4f7;
 }
 
-.rbc-row-content > .rbc-row > .rbc-date-cell:last-child {
-  display: none;
-} */
+/*Event Styles*/
+.rbc-event,
+.rbc-background-event {
+  z-index: 2;
+  padding: 0px !important;
+  border: none !important;
+}
+
+.rbc-event-label {
+  display: none !important;
+}
+
+.rbc-events-container {
+  width: 100% !important;
+}
+
+/*Timeslots Customization*/
+.rbc-day-slot .rbc-time-slot:after {
+  content: "";
+  width: 100%;
+  border-top: 1px solid #fbb3ec;
+  display: block;
+}
+
+.rbc-day-slot .rbc-time-slot:nth-child(6n + 4):after {
+  width: 25% !important;
+}
+.rbc-day-slot .rbc-time-slot:nth-child(3n + 2):after {
+  width: 12.5% !important;
+}
+.rbc-day-slot .rbc-time-slot:nth-child(3n + 3):after {
+  width: 12.5% !important;
+}
