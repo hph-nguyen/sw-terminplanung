@@ -209,3 +209,15 @@ export const swLogin = async (semester, user) => {
     return e;
   }
 };
+
+export const getRoomsList = async (semester, fakultaet) => {
+  try {
+    const res = await httpRequest.get(
+      `${checkSemesterSlash(semester)}/rooms/fakultaet/${fakultaet}`,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return res;
+  } catch (e) {
+    return e;
+  }
+};

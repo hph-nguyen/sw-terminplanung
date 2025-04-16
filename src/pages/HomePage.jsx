@@ -27,6 +27,7 @@ import { AccountCircle, VpnKey } from "@mui/icons-material";
 import Zugangscode from "../components/Zugangscode/Zugangscode";
 import ConfirmDialog from "../shared/ConfirmDialog";
 import { useAuth } from "../hooks/useAuth";
+import { redAccent } from "../theme";
 
 const drawerWidth = 240;
 
@@ -117,6 +118,7 @@ export default function HomePage() {
   const [open, setOpen] = useState(true);
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [openLogOutConfirm, setOpenLogOutConfirm] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(() => sessionStorage.getItem("currentTab") || "Modulverwaltung");
   const { logout } = useAuth();
 
   const handleDrawerOpen = () => {
@@ -139,6 +141,7 @@ export default function HomePage() {
 
   const handleItemClick = (component, currentItem) => {
     setSelectedComponent(component);
+    setSelectedItem(currentItem);
     sessionStorage.setItem("currentTab", currentItem);
   };
 
@@ -181,10 +184,20 @@ export default function HomePage() {
           {menuItems.map((itemData, index) => (
             <ListItem key={itemData.item} disablePadding sx={{ display: "block" }}>
               <ListItemButton
+                selected={selectedItem === itemData.item}
                 onClick={() => handleItemClick(itemData.component, itemData.item)}
                 sx={[{ minHeight: 48, px: 2.5 }, open ? { justifyContent: "initial" } : { justifyContent: "center" }]}
               >
-                <ListItemIcon sx={[{ minWidth: 0, justifyContent: "center" }, open ? { mr: 2 } : { mr: "auto" }]}>
+                <ListItemIcon
+                  sx={[
+                    {
+                      minWidth: 0,
+                      justifyContent: "center",
+                      color: selectedItem === itemData.item ? redAccent[500] : "",
+                    },
+                    open ? { mr: 2 } : { mr: "auto" },
+                  ]}
+                >
                   {itemData.icon}
                 </ListItemIcon>
                 <ListItemText primary={itemData.item} sx={[open ? { opacity: 1 } : { opacity: 0 }]} />

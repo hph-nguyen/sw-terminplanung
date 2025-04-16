@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
-import { Box, Button, IconButton } from "@mui/material";
+import { Box, Button, IconButton, Paper } from "@mui/material";
 import { GridToolbar, DataGrid, GridActionsCellItem, gridClasses, GridToolbarContainer } from "@mui/x-data-grid";
 
 import { deDE } from "@mui/x-data-grid/locales";
@@ -16,8 +16,9 @@ import { EventAvailable, EventBusy } from "@mui/icons-material";
 import { Fullscreen } from "@mui/icons-material";
 import MUIAccordion from "../../shared/MUIAccordion";
 
-const CustomToolbar = ({ hideFullScreenButton = false }) => {
+const CustomToolbar = ({ hideFullScreenButton = false, onFullScreenClick }) => {
   const handleOpenFullView = () => {
+    if (onFullScreenClick) onFullScreenClick();
     window.open("/gebuchte-termine", "_blank");
   };
 
@@ -33,7 +34,7 @@ const CustomToolbar = ({ hideFullScreenButton = false }) => {
   );
 };
 
-const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleBookAppt }) => {
+const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleBookAppt, onFullScreenClick }) => {
   const [rows, setRows] = useState([]);
   const [openForm, setOpenForm] = useState(false);
   const [terminToEdit, setTerminToEdit] = useState({});
@@ -111,7 +112,7 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
           status: el.status,
           rawData: { ...el },
         }));
-        setRows([...terminList]);
+        setRows(terminList);
       }
     } catch (e) {
       console.log(e);
@@ -244,6 +245,7 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
           slotProps={{
             toolbar: {
               hideFullScreenButton: hideFullScreenButton,
+              onFullScreenClick: onFullScreenClick,
             },
           }}
           getCellClassName={(params) => {
