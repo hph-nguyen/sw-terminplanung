@@ -2,7 +2,19 @@
 import { cloneElement, useCallback, useEffect, useMemo, useState } from "react";
 import { RESOURCES, EVENTS, EVENT_COLOR, VIEW_OPTIONS } from "../../constants";
 import ApptEvent from "./ApptEvent";
+import { cloneElement, useCallback, useEffect, useMemo, useState } from "react";
+import { RESOURCES, EVENTS, EVENT_COLOR, VIEW_OPTIONS } from "../../constants";
+import ApptEvent from "./ApptEvent";
 import dayjs from "dayjs";
+import { Views } from "react-big-calendar";
+import { Box, Button, ButtonGroup, IconButton, Slider, Stack, Typography, useMediaQuery } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
+import { redAccent } from "../../theme";
+import "./calendar.css";
+import { ArrowBack, ArrowForward, ChevronLeft, ZoomIn, ZoomOut } from "@mui/icons-material";
+import CustomWeekView from "./CustomWeekView";
+import BlockoutEvent from "./BlockoutEvent";
+import { Calendar as BigCalendar, dayjsLocalizer } from "react-big-calendar";
 import { Views } from "react-big-calendar";
 import { Box, Button, ButtonGroup, IconButton, Slider, Stack, Typography, useMediaQuery } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
@@ -15,6 +27,8 @@ import { Calendar as BigCalendar, dayjsLocalizer } from "react-big-calendar";
 import "dayjs/locale/de";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import * as apiService from "../../services/apiService";
 
@@ -22,7 +36,11 @@ dayjs.locale("de");
 
 const DnDCalendar = withDragAndDrop(BigCalendar);
 const localizer = dayjsLocalizer(dayjs);
+const DnDCalendar = withDragAndDrop(BigCalendar);
+const localizer = dayjsLocalizer(dayjs);
 
+const mapLines = (nthChild, width) =>
+  `.rbc-day-slot .rbc-time-slot:nth-child(${nthChild}):after {width: ${width}% !important;}`;
 const mapLines = (nthChild, width) =>
   `.rbc-day-slot .rbc-time-slot:nth-child(${nthChild}):after {width: ${width}% !important;}`;
 
@@ -32,7 +50,18 @@ const TimeSlotMinutes = Object.freeze({
   Fifteen: 15,
   Thirty: 30,
 });
+const TimeSlotMinutes = Object.freeze({
+  Five: 5,
+  Ten: 10,
+  Fifteen: 15,
+  Thirty: 30,
+});
 
+const timeSlotLinesMap = {
+  [TimeSlotMinutes.Five]: `${mapLines("6n + 4", 25)} ${mapLines("3n + 2", 12.5)} ${mapLines("3n + 3", 12.5)}`,
+  [TimeSlotMinutes.Ten]: `${mapLines("3n + 2", 12.5)} ${mapLines("3n + 3", 12.5)}`,
+  [TimeSlotMinutes.Fifteen]: mapLines("2n", 25),
+  [TimeSlotMinutes.Thirty]: "",
 const timeSlotLinesMap = {
   [TimeSlotMinutes.Five]: `${mapLines("6n + 4", 25)} ${mapLines("3n + 2", 12.5)} ${mapLines("3n + 3", 12.5)}`,
   [TimeSlotMinutes.Ten]: `${mapLines("3n + 2", 12.5)} ${mapLines("3n + 3", 12.5)}`,
@@ -165,6 +194,9 @@ export default function Schedule(height, appt) {
       week: CustomWeekView,
       day: true,
       month: true,
+      week: CustomWeekView,
+      day: true,
+      month: true,
     }),
     []
   );
@@ -172,8 +204,13 @@ export default function Schedule(height, appt) {
   const onTodayClick = useCallback(() => {
     setDate(dayjs());
   }, []);
+  const onTodayClick = useCallback(() => {
+    setDate(dayjs());
+  }, []);
 
   return (
+    <>
+      <div style={{ margin: "0 0 0 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
     <>
       <div style={{ margin: "0 0 0 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <label>
@@ -184,6 +221,13 @@ export default function Schedule(height, appt) {
           />
           Gruppieren Räume in Tag
         </label>
+        <Box sx={{ width: 220 }}>
+          <Stack spacing={2} direction="row" sx={{ alignItems: "center", mb: 1 }}>
+            <ZoomOut />
+            <Slider value={zoom} onChange={(_, newValue) => setZoom(newValue)} min={5} max={20} />
+            <ZoomIn />
+          </Stack>
+        </Box>
         <Box sx={{ width: 220 }}>
           <Stack spacing={2} direction="row" sx={{ alignItems: "center", mb: 1 }}>
             <ZoomOut />

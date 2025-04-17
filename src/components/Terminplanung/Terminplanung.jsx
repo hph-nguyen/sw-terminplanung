@@ -19,12 +19,14 @@ const Terminplanung = () => {
     if (isExpanded) {
       setTableHeight("30vh");
       setScheduleHeight("48vh");
+      setTableHeight("30vh");
+      setScheduleHeight("48vh");
     } else {
+      setTableHeight(0);
       setTableHeight(0);
       setScheduleHeight("75vh");
     }
   };
-
   return (
     <Paper sx={{ width: "100%", overflow: "auto" }} elevation={0}>
       <MUIAccordion

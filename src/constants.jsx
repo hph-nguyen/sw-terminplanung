@@ -19,6 +19,12 @@ export const RESOURCES = [
   { id: "BL317", title: "BL317" },
   { id: "BL312", title: "BL312" },
   { id: "BL315", title: "BL315" },
+  { id: "BB006", title: "BB006" },
+  { id: "BB203", title: "BB203" },
+  { id: "BLT01", title: "BLT01" },
+  { id: "BL317", title: "BL317" },
+  { id: "BL312", title: "BL312" },
+  { id: "BL315", title: "BL315" },
 ];
 export const EVENTS = [
   {
@@ -36,8 +42,13 @@ export const EVENTS = [
     isDraggable: true,
     isResizable: true,
     resourceId: "BB006",
+    isDraggable: true,
+    isResizable: true,
+    resourceId: "BB006",
   },
   {
+    start: dayjs("2025-04-10T08:00:00").toDate(),
+    end: dayjs("2025-04-10T09:30:00").toDate(),
     start: dayjs("2025-04-10T08:00:00").toDate(),
     end: dayjs("2025-04-10T09:30:00").toDate(),
     data: {
@@ -52,8 +63,13 @@ export const EVENTS = [
     isDraggable: true,
     isResizable: false,
     resourceId: "BB203",
+    isDraggable: true,
+    isResizable: false,
+    resourceId: "BB203",
   },
   {
+    start: dayjs("2025-04-11T08:00:00").toDate(),
+    end: dayjs("2025-04-11T21:00:00").toDate(),
     start: dayjs("2025-04-11T08:00:00").toDate(),
     end: dayjs("2025-04-11T21:00:00").toDate(),
     data: {
