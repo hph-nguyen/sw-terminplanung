@@ -179,7 +179,7 @@ export const deleteZugangscode = async (semester, body) => {
   }
 };
 
-export const putTermin = async (semester, termin, benutzerId) => {
+export const putWunschTermin = async (semester, termin, benutzerId) => {
   try {
     const res = await httpRequest.put(`${checkSemesterSlash(semester)}/swWunschtermine/${benutzerId}`, termin);
     return res;
@@ -214,6 +214,27 @@ export const getRoomsList = async (semester, fakultaet) => {
   try {
     const res = await httpRequest.get(
       `${checkSemesterSlash(semester)}/rooms/fakultaet/${fakultaet}`,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return res;
+  } catch (e) {
+    return e;
+  }
+};
+
+export const getAllGeplanteTermine = async (semester) => {
+  try {
+    const res = await httpRequest.get(`${checkSemesterSlash(semester)}/swAppt`, httpRequest.basicAuthen(getUserData()));
+    return res;
+  } catch (e) {
+    return e;
+  }
+};
+
+export const getSemesterAnfangUndEnde = async (semester) => {
+  try {
+    const res = await httpRequest.get(
+      `${checkSemesterSlash(semester)}/AnfangUndEnde`,
       httpRequest.basicAuthen(getUserData())
     );
     return res;

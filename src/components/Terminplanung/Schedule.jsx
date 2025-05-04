@@ -17,6 +17,7 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import * as apiService from "../../services/apiService";
+import { formatDauerZuEndzeit, generateRecurringEvents } from "../../services/timeUtils";
 
 dayjs.locale("de");
 
@@ -41,37 +42,52 @@ const timeSlotLinesMap = {
 };
 
 export default function Schedule(height, appt) {
-  const [date, setDate] = useState(dayjs(new Date()));
+  const [semesterStart, setSemesterStart] = useState(sessionStorage.getItem("semesterStart"));
+  const [semesterEnde, setSemesterEnde] = useState(sessionStorage.getItem("semesterEnde"));
+  const [exdates, setExdates] = useState([]);
+  const [feiertage, setFeiertage] = useState([]);
+  const [date, setDate] = useState(dayjs(semesterStart));
   const [view, setView] = useState(Views.WEEK);
-  const [contextMenuInfo, setContextMenuInfo] = useState();
+  // const [contextMenuInfo, setContextMenuInfo] = useState();
   const [groupResourcesOnWeek, setGroupResourcesOnWeek] = useState(true);
   const [resources, setResources] = useState([]);
-
+  const [roomsList, setRoomsList] = useState([]);
+  const [events, setEvents] = useState([]);
   const [zoom, setZoom] = useState([5]);
   const STEP = 5;
   const TIME_SLOTS = 60 / STEP;
-
   const showDatePicker = useMediaQuery("(min-width:1080px)");
 
-  const getRoomsList = async () => {
-    try {
-      const res = await apiService.getRoomsList(sessionStorage.getItem("currentSemester"), "sw");
-      const temp = res.data.map((el) => {
-        return {
-          id: el.name,
-          title: `${el.name} (${el.platzzahl})`,
-        };
-      });
-      setResources(temp);
-      console.log(resources);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   useEffect(() => {
-    getRoomsList();
+    const getRoomsList = async () => {
+      try {
+        const res = await apiService.getRoomsList(sessionStorage.getItem("currentSemester"), "sw");
+        const roomsList = res.data.map((el) => el.name);
+        const temp = res.data.map((el) => {
+          return {
+            id: el.name,
+            title: `${el.name} (${el.platzzahl})`,
+          };
+        });
+        setRoomsList(roomsList);
+        setResources(temp);
+        return roomsList;
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    const fetchAll = async () => {
+      const rooms = await getRoomsList();
+      const { exdates, feiertage } = await getExDates();
+      await getGeplanteTermine(rooms, exdates, feiertage);
+    };
+    fetchAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const onSlotSelect = ({ start, end }) => {
+    alert(`Start: ${start.toISOString()}\nEnd: ${end.toISOString()}`);
+  };
 
   const onPrevClick = useCallback(() => {
     if (view === Views.DAY) {
@@ -106,6 +122,140 @@ export default function Schedule(height, appt) {
     }
   }, [view, date]);
 
+  const getExDates = async () => {
+    try {
+      const res = await apiService.getFeiertage(sessionStorage.getItem("currentSemester"));
+
+      if (res?.status === 200 && res.data) {
+        const exdates = res.data.map((el) => el.tag);
+        const feiertage = res.data;
+        setExdates(exdates);
+        setFeiertage(feiertage);
+        return { exdates, feiertage };
+      } else {
+        console.log(res);
+        return { exdates: [], feiertage: [] };
+      }
+    } catch (e) {
+      console.log(e);
+      return { exdates: [], feiertage: [] };
+    }
+  };
+
+  const getGeplanteTermine = async (resources = [], exdates = [], feiertage = []) => {
+    try {
+      const res = await apiService.getAllGeplanteTermine(sessionStorage.getItem("currentSemester"));
+      // console.log(res.data);
+      if (res?.status === 200) {
+        if (res.data) {
+          const termine = res.data.map((t) => {
+            /**
+             * Event Color:
+             * Green: BK
+             * Blue: W & VZ
+             * Yellow: Termin wird geändert
+             * Red: Termin wird storniert
+             */
+            let color;
+            if (t.status === t.wunschtermin.status) {
+              if (t.rhythmus === "BK") color = "green";
+              else color = "blue";
+            } else {
+              if (t.wunschtermin.status === "geaendert") color = "yellow";
+              else color = "red";
+            }
+            /**
+             * Event start and end time
+             */
+            let start;
+            let end;
+            if (t.rhythmus !== "BK") {
+              start = dayjs(`${semesterStart}T${t.anfangszeit}`).toDate();
+              end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`).toDate();
+            } else {
+              start = dayjs(`${semesterStart}T${t.anfangszeit}`).toDate();
+              end = dayjs(`${semesterStart}T${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`).toDate();
+            }
+            return {
+              wochentag: t.wochentag ? t.wochentag : dayjs(t.datum).day(),
+              start: start,
+              end: end,
+              data: {
+                appointment: {
+                  id: t.id,
+                  color: color,
+                  time: `${t.anfangszeit} - ${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`,
+                  details: `${t.termin_name}\n${t.wunschtermin.dozent}`,
+                  rhythmus: t.rhythmus,
+                },
+              },
+              rawData: t,
+              isDraggable: true,
+              resourceId: t.raum,
+              dauer: t.dauer,
+            };
+          });
+          const ruleEvents = transformAndGenerateRecurringEvent(termine, exdates);
+          const blockoutEvents = addFeiertagBlockout(feiertage, resources);
+          const events = [...ruleEvents, ...blockoutEvents];
+          setEvents(events);
+        } else {
+          console.log(res);
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const addFeiertagBlockout = (feiertage, resources) => {
+    const blockout = feiertage.map((e) => {
+      return {
+        start: dayjs(`${e.tag}T08:00:00`).toDate(),
+        end: dayjs(`${e.tag}T21:00:00`).toDate(),
+        data: {
+          blockout: {
+            id: 1,
+            name: e.beschreibung,
+          },
+        },
+        isDraggable: false,
+        resourceId: resources,
+      };
+    });
+    return blockout;
+  };
+
+  const transformAndGenerateRecurringEvent = (events, exdates) => {
+    let allEvents = [];
+    events.forEach((event) => {
+      const appointment = event.data?.appointment;
+      if (appointment) {
+        if (appointment.rhythmus !== "BK") {
+          const recurring = generateRecurringEvents(
+            {
+              id: appointment.id,
+              start: event.start,
+              end: event.end,
+              resourceId: event.resourceId,
+              weekday: event.wochentag,
+              rhythmus: appointment.rhythmus,
+              dauer: event.dauer,
+              originalEvent: appointment,
+            },
+            exdates
+          );
+          allEvents.push(...recurring);
+        } else {
+          allEvents.push(event);
+        }
+      } else {
+        allEvents.push(event);
+      }
+    });
+    return allEvents;
+  };
+
   const components = {
     event: ({ event }) => {
       const data = event?.data;
@@ -132,7 +282,7 @@ export default function Schedule(height, appt) {
     // },
   };
   const [draggedEvent, setDraggedEvent] = useState();
-  const [events, setEvents] = useState(EVENTS);
+
   const onChangeEventTime = useCallback(({ event, start, end, resourceId }) => {
     setEvents((prevEvents) =>
       prevEvents.map((prevEvent) => {
@@ -142,23 +292,6 @@ export default function Schedule(height, appt) {
       })
     );
   }, []);
-  const onDroppedFromOutside = useCallback(
-    ({ start, end, resource }) => {
-      if (draggedEvent === "undroppable") return;
-      setEvents((prevEvents) => [
-        ...prevEvents,
-        {
-          start,
-          end,
-          resourceId: resource,
-          data: { appointment: draggedEvent },
-          isDraggable: true,
-          isResizable: true,
-        },
-      ]);
-    },
-    [draggedEvent]
-  );
 
   const views = useMemo(
     () => ({
@@ -297,7 +430,7 @@ export default function Schedule(height, appt) {
             selectable
             localizer={localizer}
             events={events}
-            defaultDate={"2025-04-10"}
+            // defaultDate={semesterStart}
             defaultView={"week"}
             min={dayjs("2025-04-10T08:00:00").toDate()}
             max={dayjs("2025-04-10T21:00:00").toDate()}
@@ -315,14 +448,15 @@ export default function Schedule(height, appt) {
             onNavigate={(date) => setDate(dayjs(date))}
             step={STEP}
             timeslots={TIME_SLOTS}
-            onSelectSlot={({ start, end }) => {
-              alert(`You selected:\nStart: ${start}\nEnd: ${end}`);
-            }}
+            // onSelectSlot={({ start, end }) => {
+            //   alert(`You selected:\nStart: ${start}\nEnd: ${end}`);
+            // }}
+            onSelectSlot={onSlotSelect}
             draggableAccessor={(event) => !!event.isDraggable}
-            resizableAccessor={"isResizable"}
             onEventDrop={onChangeEventTime}
-            onEventResize={onChangeEventTime}
-            onDropFromOutside={onDroppedFromOutside}
+            resizableAccessor={() => false}
+            // resizableAccessor={"isResizable"}
+            // onEventResize={onChangeEventTime}
           />
         </Box>
       </Box>

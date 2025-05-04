@@ -27,6 +27,7 @@ const Terminplanung = () => {
       setScheduleHeight("75vh");
     }
   };
+
   return (
     <Paper sx={{ width: "100%", overflow: "auto" }} elevation={0}>
       <MUIAccordion

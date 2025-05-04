@@ -76,7 +76,7 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
 
   const handleBook = async (e) => {
     const benId = JSON.parse(sessionStorage.getItem("user")).benutzer_id;
-    const res = await apiService.putTermin(
+    const res = await apiService.putWunschTermin(
       sessionStorage.getItem("currentSemester"),
       { ...e, vformat: e.vformat.toString(), dauer: dauerBerechnung(e.anfangszeit, e.bis) },
       benId
@@ -130,7 +130,7 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
 
       const benutzerId = e.row.rawData.benutzer_id;
       if (benutzerId) {
-        const res = await apiService.putTermin(sessionStorage.getItem("currentSemester"), temp, benutzerId);
+        const res = await apiService.putWunschTermin(sessionStorage.getItem("currentSemester"), temp, benutzerId);
         if (res.status === 200) {
           getGebuchteTermine();
           channel.postMessage("update");

@@ -30,55 +30,10 @@ export const formatDauerZuEndzeit = (anfangszeit, dauer) => {
   return startTime.add(dauer, "minute").format("HH:mm");
 };
 
-// export const generateRecurringEvents = (event) => {
-//   const { id, title, start, end, resourceId, weekday, turnus, dauer } = event;
+export const generateRecurringEvents = (event, exdates = []) => {
+  const { id, start, end, resourceId, weekday, rhythmus, dauer, originalEvent } = event;
 
-//   let interval = turnus === "VZ" || turnus === "VZ2" ? 2 : 1;
-
-//   const weekdayMap = {
-//     0: RRule.MO,
-//     1: RRule.TU,
-//     2: RRule.WE,
-//     3: RRule.TH,
-//     4: RRule.FR,
-//     5: RRule.SA,
-//     6: RRule.SU,
-//   };
-
-//   const parsedWeekday = parseInt(weekday, 10);
-//   if (!Object.prototype.hasOwnProperty.call(weekdayMap, parsedWeekday)) {
-//     console.error("Invalid weekday:", weekday);
-//     return [];
-//   }
-
-//   if (end <= start) {
-//     console.error("End date must be after start date");
-//     return [];
-//   }
-
-//   const rule = new RRule({
-//     freq: RRule.WEEKLY,
-//     dtstart: start,
-//     until: end,
-//     byweekday: weekdayMap[parsedWeekday],
-//     interval: interval,
-//   });
-
-//   const dates = rule.all();
-
-//   return dates.map((date) => ({
-//     id,
-//     title,
-//     start: dayjs(date).toDate(),
-//     end: dayjs(date).add(dauer, "minute").toDate(),
-//     resourceId,
-//   }));
-// };
-
-export const generateRecurringEvents = (event) => {
-  const { id, title, start, end, resourceId, weekday, turnus, dauer } = event;
-
-  let interval = turnus === "VZ" || turnus === "VZ2" ? 2 : 1;
+  let interval = rhythmus === "VZ" || rhythmus === "VZ2" ? 2 : 1;
 
   const weekdayMap = {
     0: RRule.MO,
@@ -89,6 +44,8 @@ export const generateRecurringEvents = (event) => {
     5: RRule.SA,
     6: RRule.SU,
   };
+
+  const exdateStrings = new Set(exdates.map((d) => dayjs(d).format("YYYY-MM-DD")));
 
   const parsedWeekday = parseInt(weekday, 10);
   if (!Object.prototype.hasOwnProperty.call(weekdayMap, parsedWeekday)) {
@@ -106,7 +63,6 @@ export const generateRecurringEvents = (event) => {
   const startDate = dayjs(start).tz(tz, true);
   const endDate = dayjs(end).tz(tz, true);
 
-  // Function to find DST transitions
   const findDSTTransitions = (start, end) => {
     let transitions = [];
     let current = start;
@@ -124,10 +80,8 @@ export const generateRecurringEvents = (event) => {
     return transitions;
   };
 
-  // Get DST transition points
   const transitionDates = findDSTTransitions(startDate, endDate);
 
-  // Split into periods
   let periods = [];
   let lastStart = startDate;
 
@@ -156,17 +110,28 @@ export const generateRecurringEvents = (event) => {
     const dates = rule.all();
 
     allEvents = allEvents.concat(
-      dates.map((date) => {
-        const eventStart = dayjs.tz(date, tz).hour(startDate.hour()).minute(startDate.minute());
-        return {
-          id,
-          title,
-          start: eventStart.toDate(),
-          end: eventStart.add(dauer, "minute").toDate(),
-          resourceId,
-          color: "red",
-        };
-      })
+      dates
+        .filter((date) => !exdateStrings.has(dayjs(date).format("YYYY-MM-DD")))
+        .map((date) => {
+          const eventStart = dayjs.tz(date, tz).hour(startDate.hour()).minute(startDate.minute());
+          const eventEnd = eventStart.add(dauer, "minute");
+
+          return {
+            start: eventStart.toDate(),
+            end: eventEnd.toDate(),
+            data: {
+              appointment: {
+                id,
+                color: originalEvent.color,
+                time: `${eventStart.format("HH:mm")} - ${eventEnd.format("HH:mm")}`,
+                details: originalEvent.details,
+                rhythmus: rhythmus,
+              },
+            },
+            isDraggable: true,
+            resourceId,
+          };
+        })
     );
   });
 

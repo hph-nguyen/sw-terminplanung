@@ -3,8 +3,8 @@ import { EVENT_COLOR } from "../../constants";
 
 export default function ApptEvent({ appointment, isMonthView }) {
   if (appointment) {
-    const { time, status, resource, details = "" } = appointment;
-    const bgColor = EVENT_COLOR[status];
+    const { time, color, rhythmus, details = "" } = appointment;
+    const bgColor = EVENT_COLOR[color];
 
     return (
       <Box
@@ -26,14 +26,14 @@ export default function ApptEvent({ appointment, isMonthView }) {
             {time}
           </Typography>
           <Typography variant="h7" fontWeight={600}>
-            {resource}
+            {rhythmus}
           </Typography>
         </Box>
         <Box>
           {!isMonthView &&
             details.split("\n").map((detail, index) => (
               <Typography variant="h7" key={index}>
-                {detail} <br />
+                <strong> {detail}</strong> <br />
               </Typography>
             ))}
         </Box>

@@ -36,12 +36,49 @@ export const LoginPage = () => {
       await login({ ...userRes.data, password: e.password });
       sessionStorage.setItem("currentSemester", e.semester);
       sessionStorage.setItem("semesterListe", userRes.data.semesterliste);
+      getSemesterAnfangUndEnde(e.semester);
+      // getExDates(e.semester);
     } catch (error) {
       console.error("Login error:", error);
       setErrMsg("Ein Fehler ist aufgetreten");
       setIsError(true);
     }
   };
+
+  const getSemesterAnfangUndEnde = async (semester) => {
+    try {
+      const res = await apiService.getSemesterAnfangUndEnde(semester);
+      if (res?.status === 200) {
+        if (res.data) {
+          sessionStorage.setItem("semesterStart", res.data.anfang);
+          sessionStorage.setItem("semesterEnde", res.data.ende);
+        }
+      } else {
+        console.log(res);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // const getExDates = async () => {
+  //   try {
+  //     const res = await apiService.getFeiertage(sessionStorage.getItem("currentSemester"));
+  //     if (res?.status === 200) {
+  //       if (res?.data) {
+  //         const exdates = res.data.map((el) => {
+  //           return el.tag;
+  //         });
+  //         sessionStorage.setItem("Exdates", JSON.stringify(exdates));
+  //         sessionStorage.setItem("Feiertage", JSON.stringify(res.data));
+  //       }
+  //     } else {
+  //       console.log(res);
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
 
   useEffect(() => {
     const getSemester = async () => {
