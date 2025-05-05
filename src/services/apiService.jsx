@@ -242,3 +242,15 @@ export const getSemesterAnfangUndEnde = async (semester) => {
     return e;
   }
 };
+
+export const getAllBenutzer = async (semester) => {
+  try {
+    const res = await httpRequest.get(
+      `${checkSemesterSlash(semester)}/benutzer?Namensfilter`,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return res;
+  } catch (e) {
+    return e;
+  }
+};

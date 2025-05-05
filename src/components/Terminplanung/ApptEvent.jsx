@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { EVENT_COLOR } from "../../constants";
 
-export default function ApptEvent({ appointment, isMonthView }) {
+export default function ApptEvent({ appointment, isMonthView, zusatzInfo = "" }) {
   if (appointment) {
     const { time, color, rhythmus, details = "" } = appointment;
     const bgColor = EVENT_COLOR[color];
@@ -30,12 +30,20 @@ export default function ApptEvent({ appointment, isMonthView }) {
           </Typography>
         </Box>
         <Box>
-          {!isMonthView &&
-            details.split("\n").map((detail, index) => (
-              <Typography variant="h7" key={index}>
-                <strong> {detail}</strong> <br />
-              </Typography>
-            ))}
+          {!isMonthView && (
+            <>
+              {details.split("\n").map((detail, index) => (
+                <Typography variant="h7" key={index}>
+                  <strong>{detail}</strong> <br />
+                </Typography>
+              ))}
+              {zusatzInfo && zusatzInfo.trim() !== "" && (
+                <Typography variant="h7" color="primary">
+                  <i>{zusatzInfo}</i>
+                </Typography>
+              )}
+            </>
+          )}
         </Box>
       </Box>
     );

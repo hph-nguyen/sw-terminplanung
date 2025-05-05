@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
-import { Box, Button, IconButton, Paper } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { GridToolbar, DataGrid, GridActionsCellItem, gridClasses, GridToolbarContainer } from "@mui/x-data-grid";
 
 import { deDE } from "@mui/x-data-grid/locales";
@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import { grey } from "@mui/material/colors";
 import { EventAvailable, EventBusy } from "@mui/icons-material";
 import { Fullscreen } from "@mui/icons-material";
-import MUIAccordion from "../../shared/MUIAccordion";
+// import MUIAccordion from "../../shared/MUIAccordion";
 
 const CustomToolbar = ({ hideFullScreenButton = false, onFullScreenClick }) => {
   const handleOpenFullView = () => {

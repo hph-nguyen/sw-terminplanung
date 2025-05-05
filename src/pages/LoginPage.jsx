@@ -37,7 +37,6 @@ export const LoginPage = () => {
       sessionStorage.setItem("currentSemester", e.semester);
       sessionStorage.setItem("semesterListe", userRes.data.semesterliste);
       getSemesterAnfangUndEnde(e.semester);
-      // getExDates(e.semester);
     } catch (error) {
       console.error("Login error:", error);
       setErrMsg("Ein Fehler ist aufgetreten");
@@ -60,25 +59,6 @@ export const LoginPage = () => {
       console.log(e);
     }
   };
-
-  // const getExDates = async () => {
-  //   try {
-  //     const res = await apiService.getFeiertage(sessionStorage.getItem("currentSemester"));
-  //     if (res?.status === 200) {
-  //       if (res?.data) {
-  //         const exdates = res.data.map((el) => {
-  //           return el.tag;
-  //         });
-  //         sessionStorage.setItem("Exdates", JSON.stringify(exdates));
-  //         sessionStorage.setItem("Feiertage", JSON.stringify(res.data));
-  //       }
-  //     } else {
-  //       console.log(res);
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
 
   useEffect(() => {
     const getSemester = async () => {

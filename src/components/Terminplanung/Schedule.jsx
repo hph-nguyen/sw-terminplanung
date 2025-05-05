@@ -157,12 +157,18 @@ export default function Schedule(height, appt) {
              * Red: Termin wird storniert
              */
             let color;
+            let zusatzInfo = "";
             if (t.status === t.wunschtermin.status) {
               if (t.rhythmus === "BK") color = "green";
               else color = "blue";
             } else {
-              if (t.wunschtermin.status === "geaendert") color = "yellow";
-              else color = "red";
+              if (t.wunschtermin.status === "geaendert") {
+                color = "yellow";
+                zusatzInfo = "Wunschetermin wird geändert, bitte aktualisieren";
+              } else {
+                zusatzInfo = "Wunschetermin wird storniert, bitte aktualisieren";
+                color = "red";
+              }
             }
             /**
              * Event start and end time
@@ -193,6 +199,7 @@ export default function Schedule(height, appt) {
               isDraggable: true,
               resourceId: t.raum,
               dauer: t.dauer,
+              zusatzInfo: zusatzInfo,
             };
           });
           const ruleEvents = transformAndGenerateRecurringEvent(termine, exdates);
@@ -259,7 +266,10 @@ export default function Schedule(height, appt) {
   const components = {
     event: ({ event }) => {
       const data = event?.data;
-      if (data?.appointment) return <ApptEvent appointment={data?.appointment} isMonthView={view === Views.MONTH} />;
+      if (data?.appointment)
+        return (
+          <ApptEvent appointment={data?.appointment} isMonthView={view === Views.MONTH} zusatzInfo={event.zusatzInfo} />
+        );
 
       if (data?.blockout) {
         return <BlockoutEvent blockout={data?.blockout} />;
