@@ -53,6 +53,7 @@ export default function Zugangscode() {
       setSemesterList(temp);
     }
     getZugangscode();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -92,7 +93,7 @@ export default function Zugangscode() {
       <Typography variant="h4" color="primary" sx={{ mb: 2 }}>
         <strong>Zugangscode für Lehrveranstaltungsterminbuchung</strong>
       </Typography>
-      <TableContainer sx={{ maxHeight: "80vh" }} component={Paper}>
+      <TableContainer sx={{ maxHeight: "62vh" }} component={Paper}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -119,7 +120,7 @@ export default function Zugangscode() {
                 <TableCell>{row.code}</TableCell>
                 <TableCell>{row.semestername}</TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleDelete(row)}>
+                  <IconButton onClick={() => handleDelete(row)} color="primary">
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>

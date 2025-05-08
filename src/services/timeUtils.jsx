@@ -31,7 +31,7 @@ export const formatDauerZuEndzeit = (anfangszeit, dauer) => {
 };
 
 export const generateRecurringEvents = (event, exdates = []) => {
-  const { id, start, end, resourceId, weekday, rhythmus, dauer, originalEvent } = event;
+  const { id, start, end, resourceId, weekday, rhythmus, dauer, originalEvent, ...props } = event;
 
   let interval = rhythmus === "VZ" || rhythmus === "VZ2" ? 2 : 1;
 
@@ -130,6 +130,7 @@ export const generateRecurringEvents = (event, exdates = []) => {
             },
             isDraggable: true,
             resourceId,
+            ...props,
           };
         })
     );

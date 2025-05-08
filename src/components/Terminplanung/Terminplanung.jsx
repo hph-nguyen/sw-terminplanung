@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-import { RRule } from "rrule";
 import { Box, Paper } from "@mui/material";
 import Schedule from "./Schedule";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -8,8 +6,6 @@ import GebuchtTermine from "./GebuchtTermine";
 import MUIAccordion from "../../shared/MUIAccordion";
 import { redAccent } from "../../theme";
 import { useState } from "react";
-import { useEffect } from "react";
-import * as apiService from "../../services/apiService";
 
 const Terminplanung = () => {
   const [scheduleHeight, setScheduleHeight] = useState("48vh");
@@ -29,7 +25,7 @@ const Terminplanung = () => {
   };
 
   return (
-    <Paper sx={{ width: "100%", overflow: "auto" }} elevation={0}>
+    <Paper sx={{ width: "100%", overflow: "hidden" }} elevation={0}>
       <MUIAccordion
         disableGutters={true}
         header={

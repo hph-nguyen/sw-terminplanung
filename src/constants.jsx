@@ -9,6 +9,13 @@ export const EVENT_COLOR = {
   red: red[100],
 };
 
+export const POPOVER_EVENT_COLOR = {
+  blue: blue[200],
+  green: green[200],
+  yellow: amber[200],
+  red: red[200],
+};
+
 export const VIEW_OPTIONS = [
   { id: Views.MONTH, label: "Monat" },
   { id: Views.WEEK, label: "Woche" },
@@ -162,4 +169,15 @@ export const EVENTS = [
     resourceId: "BB.103",
     dauer: 120,
   },
+];
+
+export const personaltyp = [
+  { value: "PF", label: "Professor" },
+  { value: "MA", label: "Mitarbeiter" },
+  { value: "LB", label: "Labormitarbeiter" },
+];
+
+export const zuloeschen = [
+  { value: "0", label: "Nein" },
+  { value: "1", label: "Ja" },
 ];

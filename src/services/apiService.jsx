@@ -254,3 +254,30 @@ export const getAllBenutzer = async (semester) => {
     return e;
   }
 };
+
+export const addDozent = async (semester, data) => {
+  try {
+    const res = await httpRequest.post(
+      `${checkSemesterSlash(semester)}/benutzer`,
+      data,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return res;
+  } catch (e) {
+    return e;
+  }
+};
+
+export const editDozent = async (semester, data, namensFilter) => {
+  try {
+    const res = await httpRequest.put(`${checkSemesterSlash(semester)}/benutzer`, data, {
+      ...httpRequest.basicAuthen(getUserData()),
+      params: {
+        Namensfilter: namensFilter,
+      },
+    });
+    return res;
+  } catch (e) {
+    return e;
+  }
+};

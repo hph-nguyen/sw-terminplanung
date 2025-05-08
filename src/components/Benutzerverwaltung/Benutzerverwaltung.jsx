@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as apiService from "../../services/apiService";
-import { Box, Button, IconButton, Paper, Tooltip } from "@mui/material";
+import { Alert, AlertTitle, Box, Button, IconButton, Paper, Snackbar, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridToolbarFilterButton,
@@ -12,12 +12,32 @@ import { grey } from "@mui/material/colors";
 import { redAccent } from "../../theme";
 import { deDE } from "@mui/x-data-grid/locales";
 import { Edit, PersonAdd } from "@mui/icons-material";
+import MUIDialog from "../../shared/MUIDialog";
+import AddPerson from "./AddPerson";
+import EditPerson from "./EditPerson";
 
 const Benutzerverwaltung = () => {
   const [benutzer, setBenutzer] = useState([]);
+  const [alertMsg, setAlertMsg] = useState("");
+  const [alert, setAlert] = useState(false);
+  const [alertType, setAlertType] = useState(false);
+
   useEffect(() => {
     getAllBenutzer();
   }, []);
+
+  const [openAddPerson, setOpenAddPerson] = useState(false);
+  const [openEditPerson, setOpenEditPerson] = useState(false);
+
+  const [selectedDozent, setSelectedDozent] = useState({
+    name: "",
+    vorname: "",
+    namenszusatz: "",
+    login: "",
+    fakultaet: "sw",
+    lehrpersonentyp: "PF",
+    zuLoeschen: "0",
+  });
 
   const columns = [
     {
@@ -48,9 +68,9 @@ const Benutzerverwaltung = () => {
       field: "Edit",
       sortable: false,
       flex: 1,
-      renderCell: () => {
+      renderCell: (e) => {
         return (
-          <IconButton onClick={handleEditClick} color="primary">
+          <IconButton onClick={() => handleEditClick(e)} color="primary">
             <Edit />
           </IconButton>
         );
@@ -64,7 +84,7 @@ const Benutzerverwaltung = () => {
         <GridToolbarColumnsButton />
         <GridToolbarFilterButton />
         <GridToolbarDensitySelector />
-        <Button size="small" onClick={handleAddPerson}>
+        <Button size="small" onClick={handleAddClick}>
           <Tooltip title="Neue Benutzer hinzufügen">
             <PersonAdd />
           </Tooltip>
@@ -73,8 +93,76 @@ const Benutzerverwaltung = () => {
     );
   };
 
-  const handleAddPerson = () => {};
-  const handleEditClick = () => {};
+  const handleAddClick = () => {
+    setOpenAddPerson(true);
+  };
+  const handleEditClick = (e) => {
+    setSelectedDozent(e.row);
+    console.log(e.row);
+    setOpenEditPerson(true);
+  };
+
+  //close SnackBar
+  const handleCloseBar = () => {
+    setAlert(false);
+    setTimeout(() => {
+      setAlertMsg("");
+      setAlertType(false);
+    }, 500);
+  };
+
+  const addBenutzer = async (values) => {
+    const result = await apiService.addDozent(sessionStorage.getItem("currentSemester"), [values]);
+
+    // Das Ergebnis basierend auf dem Status behandeln
+    //Erfolgsfall
+    if (result.status === 200) {
+      setAlert(true);
+      setAlertMsg("Erfolgreich hinzugefügt");
+      setAlertType("success");
+
+      //getDozent-Funktion wird aufgerufen, um wahrscheinlich aktualisierte Dozentenliste abzurufen.
+      getAllBenutzer();
+
+      //Bei Konflikten
+    } else if (result.response.status === 409) {
+      setAlert(true);
+      setAlertMsg(result.response.data);
+
+      //Andere Fälle
+    } else {
+      setAlert(true);
+      setAlertMsg(result.response.data);
+    }
+    setOpenAddPerson(false);
+  };
+
+  const editBenutzer = async (values) => {
+    console.log(values);
+    console.log(selectedDozent.login);
+    try {
+      const result = await apiService.editDozent(
+        sessionStorage.getItem("currentSemester"),
+        [values],
+        //Verwendung des Loginnamens des ausgewähltem Dozenten
+        selectedDozent ? selectedDozent.login : ""
+      );
+
+      // Das Ergebnis basierend auf dem Status behandeln
+      if (result.status === 200) {
+        setAlert(true);
+        setAlertType("success");
+        setAlertMsg("Dozent/in wurde erfolgreich geändert");
+        getAllBenutzer();
+      } else {
+        setAlert(true);
+        setAlertMsg(result.response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setOpenEditPerson(false);
+  };
 
   const getAllBenutzer = async () => {
     try {
@@ -122,6 +210,33 @@ const Benutzerverwaltung = () => {
           disableRowSelectionOnClick
         />
       </Box>
+
+      <MUIDialog
+        onOpen={openAddPerson}
+        onClose={() => setOpenAddPerson(false)}
+        title={"Dozent/-in hinzufügen"}
+        content={<AddPerson onSubmit={addBenutzer} />}
+      ></MUIDialog>
+
+      <MUIDialog
+        onOpen={openEditPerson}
+        onClose={() => setOpenEditPerson(false)}
+        title={"Dozent/-in ändern"}
+        content={<EditPerson onSubmit={editBenutzer} initialValues={selectedDozent} />}
+      ></MUIDialog>
+
+      <Snackbar
+        open={alert}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        autoHideDuration={5000}
+        onClose={handleCloseBar}
+      >
+        <Alert onClose={handleCloseBar} severity={alertType || "error"} sx={{ width: "100%" }}>
+          <AlertTitle>
+            <strong>{alertMsg}</strong>
+          </AlertTitle>
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };

@@ -4,11 +4,32 @@ import { RESOURCES, EVENTS, EVENT_COLOR, VIEW_OPTIONS } from "../../constants";
 import ApptEvent from "./ApptEvent";
 import dayjs from "dayjs";
 import { Views } from "react-big-calendar";
-import { Box, Button, ButtonGroup, IconButton, Slider, Stack, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  IconButton,
+  Paper,
+  Popover,
+  Slider,
+  Stack,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { redAccent } from "../../theme";
 import "./calendar.css";
-import { ArrowBack, ArrowForward, ChevronLeft, ZoomIn, ZoomOut } from "@mui/icons-material";
+import {
+  Apartment,
+  ArrowBack,
+  ArrowForward,
+  ChevronLeft,
+  EventRepeat,
+  PermContactCalendar,
+  Person,
+  ZoomIn,
+  ZoomOut,
+} from "@mui/icons-material";
 import CustomWeekView from "./CustomWeekView";
 import BlockoutEvent from "./BlockoutEvent";
 import { Calendar as BigCalendar, dayjsLocalizer } from "react-big-calendar";
@@ -18,6 +39,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import * as apiService from "../../services/apiService";
 import { formatDauerZuEndzeit, generateRecurringEvents } from "../../services/timeUtils";
+import EventPopover from "./EventPopover";
 
 dayjs.locale("de");
 
@@ -57,6 +79,10 @@ export default function Schedule(height, appt) {
   const STEP = 5;
   const TIME_SLOTS = 60 / STEP;
   const showDatePicker = useMediaQuery("(min-width:1080px)");
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState({});
+  const [popoverColor, setPopoverColor] = useState("");
 
   useEffect(() => {
     const getRoomsList = async () => {
@@ -249,6 +275,7 @@ export default function Schedule(height, appt) {
               rhythmus: appointment.rhythmus,
               dauer: event.dauer,
               originalEvent: appointment,
+              rawData: event.rawData,
             },
             exdates
           );
@@ -263,12 +290,31 @@ export default function Schedule(height, appt) {
     return allEvents;
   };
 
+  const handleOnSelectEvent = (event, e) => {
+    e.stopPropagation();
+    if (event?.data.appointment && view !== Views.MONTH) {
+      setPopoverColor(event.data.appointment.color);
+      setSelectedEvent(event.rawData);
+      setAnchorEl(e.currentTarget);
+    }
+  };
+
+  const handleClosePopover = () => {
+    setAnchorEl(null);
+    setSelectedEvent({});
+  };
+
   const components = {
     event: ({ event }) => {
       const data = event?.data;
       if (data?.appointment)
         return (
-          <ApptEvent appointment={data?.appointment} isMonthView={view === Views.MONTH} zusatzInfo={event.zusatzInfo} />
+          <ApptEvent
+            appointment={data?.appointment}
+            isMonthView={view === Views.MONTH}
+            zusatzInfo={event.zusatzInfo}
+            // handleOnClick={handleOnSelectEvent}
+          />
         );
 
       if (data?.blockout) {
@@ -442,6 +488,7 @@ export default function Schedule(height, appt) {
             events={events}
             // defaultDate={semesterStart}
             defaultView={"week"}
+            onSelectEvent={(event, e) => handleOnSelectEvent(event, e)}
             min={dayjs("2025-04-10T08:00:00").toDate()}
             max={dayjs("2025-04-10T21:00:00").toDate()}
             resources={resources}
@@ -468,6 +515,77 @@ export default function Schedule(height, appt) {
             // resizableAccessor={"isResizable"}
             // onEventResize={onChangeEventTime}
           />
+
+          {/* <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{
+              vertical: "center",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "center",
+              horizontal: "left",
+            }}
+            slotProps={{
+              paper: {
+                sx: {
+                  backgroundColor: "transparent",
+                  boxShadow: "none",
+                },
+              },
+            }}
+          >
+            <Box
+              sx={{
+                position: "relative",
+                ml: 1,
+                "&::before": {
+                  backgroundColor: redAccent[100],
+                  content: '""',
+                  display: "block",
+                  position: "absolute",
+                  width: 12,
+                  height: 12,
+                  transform: "rotate(45deg)",
+                  top: "120px",
+                  left: "2px",
+                },
+              }}
+            >
+              <Box sx={{ p: 2, backgroundColor: redAccent[100], ml: 1 }}>
+                <Paper elevation={1} sx={{ p: 1, mb: 1, bgcolor: "white", color: "#292929" }}>
+                  <Box sx={{ p: 0.25 }}>
+                    <b> Termin Name </b>
+                  </Box>
+                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
+                    <Person fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} />
+                    <b>Dozent:&nbsp;</b> Name
+                  </Box>
+                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
+                    <Apartment fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} />
+                    <b>Fakultät:&nbsp;</b> fakultaet
+                  </Box>
+                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
+                    <PermContactCalendar fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} />
+                    <b>Gebucht von:&nbsp;</b> gebuchtvon
+                  </Box>
+                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
+                    <EventRepeat fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} /> <b>Turnus:&nbsp;</b>{" "}
+                    gu
+                  </Box>
+                  <Box sx={{ p: 0.25 }}>
+                    <b>Semesterhälfte:&nbsp;</b> semesterhaelfte
+                  </Box>
+                  <Box sx={{ p: 0.25 }}>
+                    <b>Kommentar:&nbsp;</b> Kommentar
+                  </Box>
+                </Paper>
+              </Box>
+            </Box>
+          </Popover> */}
+          <EventPopover anchorEl={anchorEl} onClose={handleClosePopover} event={selectedEvent} color={popoverColor} />
         </Box>
       </Box>
     </>

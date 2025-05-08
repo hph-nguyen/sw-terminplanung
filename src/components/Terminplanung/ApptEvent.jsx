@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { EVENT_COLOR } from "../../constants";
 
-export default function ApptEvent({ appointment, isMonthView, zusatzInfo = "" }) {
+export default function ApptEvent({ appointment, isMonthView, zusatzInfo = "", handleOnClick }) {
   if (appointment) {
     const { time, color, rhythmus, details = "" } = appointment;
     const bgColor = EVENT_COLOR[color];
@@ -20,6 +20,7 @@ export default function ApptEvent({ appointment, isMonthView, zusatzInfo = "" })
         onDragStart={(e) => {
           e.stopPropagation();
         }}
+        onClick={handleOnClick}
       >
         <Box sx={{ alignItems: "center", justifyContent: "space-between", display: "flex" }}>
           <Typography variant="h7" fontWeight={600}>
