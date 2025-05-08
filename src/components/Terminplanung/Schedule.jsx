@@ -46,23 +46,6 @@ dayjs.locale("de");
 const DnDCalendar = withDragAndDrop(BigCalendar);
 const localizer = dayjsLocalizer(dayjs);
 
-const mapLines = (nthChild, width) =>
-  `.rbc-day-slot .rbc-time-slot:nth-child(${nthChild}):after {width: ${width}% !important;}`;
-
-const TimeSlotMinutes = Object.freeze({
-  Five: 5,
-  Ten: 10,
-  Fifteen: 15,
-  Thirty: 30,
-});
-
-const timeSlotLinesMap = {
-  [TimeSlotMinutes.Five]: `${mapLines("6n + 4", 25)} ${mapLines("3n + 2", 12.5)} ${mapLines("3n + 3", 12.5)}`,
-  [TimeSlotMinutes.Ten]: `${mapLines("3n + 2", 12.5)} ${mapLines("3n + 3", 12.5)}`,
-  [TimeSlotMinutes.Fifteen]: mapLines("2n", 25),
-  [TimeSlotMinutes.Thirty]: "",
-};
-
 export default function Schedule(height, appt) {
   const [semesterStart, setSemesterStart] = useState(sessionStorage.getItem("semesterStart"));
   const [semesterEnde, setSemesterEnde] = useState(sessionStorage.getItem("semesterEnde"));
@@ -75,9 +58,6 @@ export default function Schedule(height, appt) {
   const [resources, setResources] = useState([]);
   const [roomsList, setRoomsList] = useState([]);
   const [events, setEvents] = useState([]);
-  const [zoom, setZoom] = useState([5]);
-  const STEP = 5;
-  const TIME_SLOTS = 60 / STEP;
   const showDatePicker = useMediaQuery("(min-width:1080px)");
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -112,7 +92,9 @@ export default function Schedule(height, appt) {
   }, []);
 
   const onSlotSelect = ({ start, end }) => {
-    alert(`Start: ${start.toISOString()}\nEnd: ${end.toISOString()}`);
+    if (view !== Views.MONTH) {
+      alert(`Start: ${start.toISOString()}\nEnd: ${end.toISOString()}`);
+    }
   };
 
   const onPrevClick = useCallback(() => {
@@ -341,13 +323,7 @@ export default function Schedule(height, appt) {
   const [draggedEvent, setDraggedEvent] = useState();
 
   const onChangeEventTime = useCallback(({ event, start, end, resourceId }) => {
-    setEvents((prevEvents) =>
-      prevEvents.map((prevEvent) => {
-        return prevEvent?.data?.appointment?.id === event?.data?.appointment?.id
-          ? { ...event, start, end, resourceId }
-          : prevEvent;
-      })
-    );
+    console.log(event, start, end, resourceId);
   }, []);
 
   const views = useMemo(
@@ -374,13 +350,6 @@ export default function Schedule(height, appt) {
           />
           Gruppieren Räume in Tag
         </label>{" "}
-        <Box sx={{ width: 220 }}>
-          <Stack spacing={2} direction="row" sx={{ alignItems: "center", mb: 1 }}>
-            <ZoomOut />
-            <Slider value={zoom} onChange={(_, newValue) => setZoom(newValue)} min={5} max={20} />
-            <ZoomIn />
-          </Stack>
-        </Box>
       </div>
 
       <Box
@@ -420,7 +389,7 @@ export default function Schedule(height, appt) {
               }}
             />
           )}
-
+          {/* CustomToolbar */}
           <Box sx={{ display: "flex" }}>
             <Button
               onClick={onTodayClick}
@@ -481,9 +450,8 @@ export default function Schedule(height, appt) {
             overflow: "auto",
             position: "relative",
             "& .rbc-timeslot-group": {
-              minHeight: `${zoom?.[0] * 14}px !important`,
+              minHeight: `70px !important`,
             },
-            ...timeSlotLinesMap?.[STEP],
           }}
         >
           <DnDCalendar
@@ -500,7 +468,7 @@ export default function Schedule(height, appt) {
             resourceGroupingLayout={groupResourcesOnWeek}
             // Components
             components={components}
-            // False, use Custom Toolbar
+            // set False to use CustomToolbar (above)
             toolbar={false}
             culture="de"
             date={date}
@@ -508,11 +476,6 @@ export default function Schedule(height, appt) {
             views={views}
             onView={setView}
             onNavigate={(date) => setDate(dayjs(date))}
-            step={STEP}
-            timeslots={TIME_SLOTS}
-            // onSelectSlot={({ start, end }) => {
-            //   alert(`You selected:\nStart: ${start}\nEnd: ${end}`);
-            // }}
             onSelectSlot={onSlotSelect}
             draggableAccessor={(event) => !!event.isDraggable}
             onEventDrop={onChangeEventTime}

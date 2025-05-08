@@ -8,9 +8,9 @@ import dayjs from "dayjs";
 export default function CustomWeekView({
   date,
   localizer,
-  max = localizer.endOf(new Date(), "day"),
-  min = localizer.startOf(new Date(), "day"),
-  scrollToTime = localizer.startOf(new Date(), "day"),
+  // max = localizer.endOf(new Date(), "day"),
+  // min = localizer.startOf(new Date(), "day"),
+  // scrollToTime = localizer.startOf(new Date(), "day"),
   ...props
 }) {
   const currRange = useMemo(() => CustomWeekView.range(date, { localizer }), [date, localizer]);
@@ -20,10 +20,10 @@ export default function CustomWeekView({
       date={date}
       eventOffset={15}
       localizer={localizer}
-      max={max}
-      min={min}
+      // max={max}
+      // min={min}
       range={currRange}
-      scrollToTime={scrollToTime}
+      // scrollToTime={scrollToTime}
       {...props}
     />
   );
@@ -32,9 +32,9 @@ export default function CustomWeekView({
 CustomWeekView.propTypes = {
   date: PropTypes.instanceOf(Date).isRequired,
   localizer: PropTypes.object,
-  max: PropTypes.instanceOf(Date),
-  min: PropTypes.instanceOf(Date),
-  scrollToTime: PropTypes.instanceOf(Date),
+  // max: PropTypes.instanceOf(Date),
+  // min: PropTypes.instanceOf(Date),
+  // scrollToTime: PropTypes.instanceOf(Date),
 };
 
 CustomWeekView.range = (date, { localizer }) => {

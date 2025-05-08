@@ -18,8 +18,7 @@ const Terminplanung = () => {
       setTableHeight("30vh");
       setScheduleHeight("48vh");
     } else {
-      setTableHeight(0);
-      setTableHeight(0);
+      setTableHeight("1vh");
       setScheduleHeight("75vh");
     }
   };
