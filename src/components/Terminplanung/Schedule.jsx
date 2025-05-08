@@ -507,7 +507,7 @@ export default function Schedule(height, appt) {
             view={view}
             views={views}
             onView={setView}
-            // onNavigate={(date) => setDate(dayjs(date))}
+            onNavigate={(date) => setDate(dayjs(date))}
             step={STEP}
             timeslots={TIME_SLOTS}
             // onSelectSlot={({ start, end }) => {
