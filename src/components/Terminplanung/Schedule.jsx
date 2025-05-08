@@ -136,15 +136,16 @@ export default function Schedule(height, appt) {
   }, [view, date]);
 
   const dateText = useMemo(() => {
-    if (view === Views.DAY) return dayjs(date).format("dddd, DD.MM.YYYY");
+    const d = dayjs(date);
+    if (view === Views.DAY) return d.format("dddd, DD.MM.YYYY");
     if (view === Views.WEEK) {
-      const from = dayjs(date)?.startOf("week");
-      const to = dayjs(date)?.endOf("week");
-      const kw = dayjs(date)?.week();
+      const from = d.startOf("week");
+      const to = d.endOf("week");
+      const kw = d.week();
       return `KW ${kw} - ${from.format("DD.MM")} bis ${to.format("DD.MM")}`;
     }
     if (view === Views.MONTH) {
-      return dayjs(date).format("MMMM YYYY");
+      return d.format("MMMM YYYY");
     }
   }, [view, date]);
 
@@ -372,7 +373,7 @@ export default function Schedule(height, appt) {
             onChange={() => setGroupResourcesOnWeek(!groupResourcesOnWeek)}
           />
           Gruppieren Räume in Tag
-        </label>
+        </label>{" "}
         <Box sx={{ width: 220 }}>
           <Stack spacing={2} direction="row" sx={{ alignItems: "center", mb: 1 }}>
             <ZoomOut />
@@ -398,7 +399,9 @@ export default function Schedule(height, appt) {
             <DatePicker
               color={"primary"}
               value={date}
-              onChange={(date) => setDate(date)}
+              onChange={(date) => {
+                setDate(dayjs(date).locale("de"));
+              }}
               format="DD.MM.YYYY"
               slotProps={{
                 textField: {
@@ -417,6 +420,7 @@ export default function Schedule(height, appt) {
               }}
             />
           )}
+
           <Box sx={{ display: "flex" }}>
             <Button
               onClick={onTodayClick}
@@ -496,13 +500,14 @@ export default function Schedule(height, appt) {
             resourceGroupingLayout={groupResourcesOnWeek}
             // Components
             components={components}
-            // Toolbar
+            // False, use Custom Toolbar
             toolbar={false}
+            culture="de"
             date={date}
             view={view}
             views={views}
             onView={setView}
-            onNavigate={(date) => setDate(dayjs(date))}
+            // onNavigate={(date) => setDate(dayjs(date))}
             step={STEP}
             timeslots={TIME_SLOTS}
             // onSelectSlot={({ start, end }) => {
@@ -515,76 +520,6 @@ export default function Schedule(height, appt) {
             // resizableAccessor={"isResizable"}
             // onEventResize={onChangeEventTime}
           />
-
-          {/* <Popover
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={() => setAnchorEl(null)}
-            anchorOrigin={{
-              vertical: "center",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "center",
-              horizontal: "left",
-            }}
-            slotProps={{
-              paper: {
-                sx: {
-                  backgroundColor: "transparent",
-                  boxShadow: "none",
-                },
-              },
-            }}
-          >
-            <Box
-              sx={{
-                position: "relative",
-                ml: 1,
-                "&::before": {
-                  backgroundColor: redAccent[100],
-                  content: '""',
-                  display: "block",
-                  position: "absolute",
-                  width: 12,
-                  height: 12,
-                  transform: "rotate(45deg)",
-                  top: "120px",
-                  left: "2px",
-                },
-              }}
-            >
-              <Box sx={{ p: 2, backgroundColor: redAccent[100], ml: 1 }}>
-                <Paper elevation={1} sx={{ p: 1, mb: 1, bgcolor: "white", color: "#292929" }}>
-                  <Box sx={{ p: 0.25 }}>
-                    <b> Termin Name </b>
-                  </Box>
-                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
-                    <Person fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} />
-                    <b>Dozent:&nbsp;</b> Name
-                  </Box>
-                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
-                    <Apartment fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} />
-                    <b>Fakultät:&nbsp;</b> fakultaet
-                  </Box>
-                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
-                    <PermContactCalendar fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} />
-                    <b>Gebucht von:&nbsp;</b> gebuchtvon
-                  </Box>
-                  <Box sx={{ p: 0.25, alignItems: "center", display: "flex" }}>
-                    <EventRepeat fontSize="small" sx={{ mx: 0.25, mb: 0.25, color: "#696969" }} /> <b>Turnus:&nbsp;</b>{" "}
-                    gu
-                  </Box>
-                  <Box sx={{ p: 0.25 }}>
-                    <b>Semesterhälfte:&nbsp;</b> semesterhaelfte
-                  </Box>
-                  <Box sx={{ p: 0.25 }}>
-                    <b>Kommentar:&nbsp;</b> Kommentar
-                  </Box>
-                </Paper>
-              </Box>
-            </Box>
-          </Popover> */}
           <EventPopover anchorEl={anchorEl} onClose={handleClosePopover} event={selectedEvent} color={popoverColor} />
         </Box>
       </Box>

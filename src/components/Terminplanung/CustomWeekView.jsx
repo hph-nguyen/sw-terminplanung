@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Navigate } from "react-big-calendar";
 import TimeGrid from "react-big-calendar/lib/TimeGrid";
+import dayjs from "dayjs";
 
 export default function CustomWeekView({
   date,
@@ -38,15 +40,16 @@ CustomWeekView.propTypes = {
 CustomWeekView.range = (date, { localizer }) => {
   const start = localizer.startOf(date, "week");
   const monday = localizer.add(start, 0, "day");
+  // if (dayjs(start).day() === 0) {
+  //   monday = localizer.add(start, 1, "day");
+  // }
   const saturday = localizer.add(monday, 5, "day");
   let current = monday;
   const range = [];
-
   while (localizer.lte(current, saturday, "day")) {
     range.push(current);
     current = localizer.add(current, 1, "day");
   }
-
   return range;
 };
 
