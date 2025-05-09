@@ -54,6 +54,12 @@
   display: block;
 }
 
+.rbc-day-slot .rbc-time-slot:nth-child(6n + 4):after {
+  width: 12.5% !important;
+}
 .rbc-day-slot .rbc-time-slot:nth-child(3n + 2):after {
+  width: 12.5% !important;
+}
+.rbc-day-slot .rbc-time-slot:nth-child(3n + 3):after {
   width: 12.5% !important;
 }

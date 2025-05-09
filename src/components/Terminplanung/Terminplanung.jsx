@@ -49,7 +49,7 @@ const Terminplanung = () => {
               },
             }}
           >
-            Gebuchte Termine
+            Wunschtermine
           </Box>
         }
         elevation="0"

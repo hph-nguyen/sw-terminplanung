@@ -23,11 +23,12 @@ import Benutzerverwaltung from "../components/Benutzerverwaltung/Benutzerverwalt
 import Terminplanung from "../components/Terminplanung/Terminplanung";
 import Modulverwaltung from "../components/Modulverwaltung/Modulverwaltung";
 import { useEffect, useState } from "react";
-import { AccountCircle, VpnKey } from "@mui/icons-material";
+import { AccountCircle, EventAvailable, VpnKey } from "@mui/icons-material";
 import Zugangscode from "../components/Zugangscode/Zugangscode";
 import ConfirmDialog from "../shared/ConfirmDialog";
 import { useAuth } from "../hooks/useAuth";
 import { redAccent } from "../theme";
+import GeplanteTermine from "../components/GeplanteTermine/GeplanteTermine";
 
 const drawerWidth = 240;
 
@@ -109,6 +110,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
 const menuItems = [
   { item: "Modulverwaltung", icon: <BookIcon />, component: <Modulverwaltung /> },
   { item: "Terminplanung", icon: <CalendarMonthIcon />, component: <Terminplanung /> },
+  { item: "Geplante Termine", icon: <EventAvailable />, component: <GeplanteTermine /> },
   { item: "Benutzerverwaltung", icon: <GroupIcon />, component: <Benutzerverwaltung /> },
   { item: "Zugangscode", icon: <VpnKey />, component: <Zugangscode /> },
 ];

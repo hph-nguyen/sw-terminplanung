@@ -38,8 +38,9 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import * as apiService from "../../services/apiService";
-import { formatDauerZuEndzeit, generateRecurringEvents } from "../../services/timeUtils";
+import { formatDauerZuEndzeit, generateRecurringEvents, getFirstMonday, normalizeTime } from "../../services/timeUtils";
 import EventPopover from "./EventPopover";
+import ExtApptEvent from "./ExtApptEvent";
 
 dayjs.locale("de");
 
@@ -47,7 +48,7 @@ const DnDCalendar = withDragAndDrop(BigCalendar);
 const localizer = dayjsLocalizer(dayjs);
 
 export default function Schedule(height, appt) {
-  const [semesterStart, setSemesterStart] = useState(sessionStorage.getItem("semesterStart"));
+  const [semesterStart, setSemesterStart] = useState(getFirstMonday(sessionStorage.getItem("semesterStart")));
   const [semesterEnde, setSemesterEnde] = useState(sessionStorage.getItem("semesterEnde"));
   const [exdates, setExdates] = useState([]);
   const [feiertage, setFeiertage] = useState([]);
@@ -157,63 +158,135 @@ export default function Schedule(height, appt) {
       // console.log(res.data);
       if (res?.status === 200) {
         if (res.data) {
-          const termine = res.data.map((t) => {
-            /**
-             * Event Color:
-             * Green: BK
-             * Blue: W & VZ
-             * Yellow: Termin wird geändert
-             * Red: Termin wird storniert
-             */
-            let color;
-            let zusatzInfo = "";
-            if (t.status === t.wunschtermin.status) {
-              if (t.rhythmus === "BK") color = "green";
-              else color = "blue";
-            } else {
-              if (t.wunschtermin.status === "geaendert") {
-                color = "yellow";
-                zusatzInfo = "Wunschetermin wird geändert, bitte aktualisieren";
+          const termine = res.data
+            .filter((t) => t.id !== "ext")
+            .map((t) => {
+              /**
+               * Event Color:
+               * Green: BK
+               * Blue: W & VZ
+               * Yellow: Termin wird geändert
+               * Red: Termin wird storniert
+               */
+              let color;
+              let zusatzInfo = "";
+              if (t.status === t.wunschtermin.status) {
+                if (t.rhythmus === "BK") color = "green";
+                else color = "blue";
               } else {
-                zusatzInfo = "Wunschetermin wird storniert, bitte aktualisieren";
-                color = "red";
+                if (t.wunschtermin.status === "geaendert") {
+                  color = "yellow";
+                  zusatzInfo = "Wunschetermin wird geändert, bitte aktualisieren";
+                } else {
+                  zusatzInfo = "Wunschetermin wird storniert, bitte aktualisieren";
+                  color = "red";
+                }
               }
-            }
-            /**
-             * Event start and end time
-             */
-            let start;
-            let end;
-            if (t.rhythmus !== "BK") {
-              start = dayjs(`${semesterStart}T${t.anfangszeit}`).toDate();
-              end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`).toDate();
-            } else {
-              start = dayjs(`${semesterStart}T${t.anfangszeit}`).toDate();
-              end = dayjs(`${semesterStart}T${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`).toDate();
-            }
-            return {
-              wochentag: t.wochentag ? t.wochentag : dayjs(t.datum).day(),
-              start: start,
-              end: end,
-              data: {
-                appointment: {
-                  id: t.id,
-                  color: color,
-                  time: `${t.anfangszeit} - ${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`,
-                  details: `${t.termin_name}\n${t.wunschtermin.dozent}`,
-                  rhythmus: t.rhythmus,
+              /**
+               * Event start and end time
+               */
+              let start;
+              let end;
+              if (t.rhythmus !== "BK") {
+                start = dayjs(`${semesterStart}T${t.anfangszeit}`).toDate();
+                end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`).toDate();
+                if (t.rhythmus === "VZ") {
+                  start = dayjs(`${t.start_datum}T${t.anfangszeit}`).toDate();
+                  end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`).toDate();
+                }
+              } else {
+                start = dayjs(`${t.start_datum}T${t.anfangszeit}`).toDate();
+                end = dayjs(`${t.start_datum}T${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`).toDate();
+              }
+              return {
+                wochentag: t.wochentag ? t.wochentag : dayjs(t.datum).day(),
+                start: start,
+                end: end,
+                data: {
+                  appointment: {
+                    id: t.id,
+                    color: color,
+                    time: `${t.anfangszeit} - ${formatDauerZuEndzeit(t.anfangszeit, t.dauer)}`,
+                    details: `${t.termin_name}\n${t.wunschtermin.dozent}`,
+                    rhythmus: t.rhythmus,
+                  },
                 },
-              },
-              rawData: t,
-              isDraggable: true,
-              resourceId: t.raum,
-              dauer: t.dauer,
-              zusatzInfo: zusatzInfo,
-            };
-          });
+                rawData: t,
+                isDraggable: true,
+                resourceId: t.raum,
+                dauer: t.dauer,
+                zusatzInfo: zusatzInfo,
+              };
+            });
+
+          /**
+           * Externe Termine
+           */
+          const extTermine = res.data
+            .filter((t) => t.id === "ext")
+            .map((t) => {
+              let start;
+              let end;
+              let rhythmus = t.rhythmus;
+              const evenStartWeek = dayjs(semesterStart).week() % 2 === 0;
+              if (t.rhythmus === "G" || t.rhythmus === "U") {
+                rhythmus = "VZ";
+              }
+              const anfangszeit = normalizeTime(t.anfangszeit);
+              if (t.rhythmus !== "BK") {
+                start = dayjs(`${semesterStart}T${anfangszeit}`).toDate();
+                end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(anfangszeit, t.dauer)}`).toDate();
+                if (evenStartWeek) {
+                  if (t.rhythmus === "G") {
+                    start = dayjs(`${semesterStart}T${anfangszeit}`).toDate();
+                    end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(anfangszeit, t.dauer)}`).toDate();
+                  }
+                  if (t.rhythmus === "U") {
+                    start = dayjs(
+                      `${dayjs(semesterStart).add(1, "week").format("YYYY-MM-DD")}T${anfangszeit}`
+                    ).toDate();
+                    end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(anfangszeit, t.dauer)}`).toDate();
+                  }
+                }
+                if (!evenStartWeek) {
+                  if (t.rhythmus === "U") {
+                    start = dayjs(`${semesterStart}T${anfangszeit}`).toDate();
+                    end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(anfangszeit, t.dauer)}`).toDate();
+                  }
+                  if (t.rhythmus === "G") {
+                    start = dayjs(
+                      `${dayjs(semesterStart).add(1, "week").format("YYYY-MM-DD")}T${anfangszeit}`
+                    ).toDate();
+                    console.log(start);
+                    end = dayjs(`${semesterEnde}T${formatDauerZuEndzeit(anfangszeit, t.dauer)}`).toDate();
+                  }
+                }
+              } else {
+                start = dayjs(`${t.start_datum}T${anfangszeit}`).toDate();
+                end = dayjs(`${t.start_datum}T${formatDauerZuEndzeit(anfangszeit, t.dauer)}`).toDate();
+              }
+              return {
+                wochentag: t.wochentag ? t.wochentag : dayjs(t.datum).day(),
+                start: start,
+                end: end,
+                data: {
+                  extAppt: {
+                    id: t.id,
+                    time: `${anfangszeit} - ${formatDauerZuEndzeit(anfangszeit, t.dauer)}`,
+                    details: `(EXTERN) ${t.termin_name}`,
+                    rhythmus: rhythmus,
+                  },
+                },
+                rawData: t,
+                isDraggable: false,
+                resourceId: t.raum,
+                dauer: t.dauer,
+              };
+            });
           const ruleEvents = transformAndGenerateRecurringEvent(termine, exdates);
+          const ruleExtEvents = transformAndGenerateRecurringEvent(extTermine, exdates, "extAppt");
           const blockoutEvents = addFeiertagBlockout(feiertage, resources);
-          const events = [...ruleEvents, ...blockoutEvents];
+          const events = [...ruleEvents, ...blockoutEvents, ...ruleExtEvents];
           setEvents(events);
         } else {
           console.log(res);
@@ -231,7 +304,7 @@ export default function Schedule(height, appt) {
         end: dayjs(`${e.tag}T21:00:00`).toDate(),
         data: {
           blockout: {
-            id: 1,
+            id: "blk",
             name: e.beschreibung,
           },
         },
@@ -242,10 +315,12 @@ export default function Schedule(height, appt) {
     return blockout;
   };
 
-  const transformAndGenerateRecurringEvent = (events, exdates) => {
+  const transformAndGenerateRecurringEvent = (events, exdates, appointmentKey = "appointment") => {
     let allEvents = [];
+
     events.forEach((event) => {
-      const appointment = event.data?.appointment;
+      const appointment = event.data?.[appointmentKey];
+
       if (appointment) {
         if (appointment.rhythmus !== "BK") {
           const recurring = generateRecurringEvents(
@@ -260,7 +335,8 @@ export default function Schedule(height, appt) {
               originalEvent: appointment,
               rawData: event.rawData,
             },
-            exdates
+            exdates,
+            appointmentKey
           );
           allEvents.push(...recurring);
         } else {
@@ -270,12 +346,13 @@ export default function Schedule(height, appt) {
         allEvents.push(event);
       }
     });
+
     return allEvents;
   };
 
   const handleOnSelectEvent = (event, e) => {
     e.stopPropagation();
-    if (event?.data.appointment && view !== Views.MONTH) {
+    if (event?.data.appointment) {
       setPopoverColor(event.data.appointment.color);
       setSelectedEvent(event.rawData);
       setAnchorEl(e.currentTarget);
@@ -284,7 +361,7 @@ export default function Schedule(height, appt) {
 
   const handleClosePopover = () => {
     setAnchorEl(null);
-    setSelectedEvent({});
+    // setSelectedEvent({});
   };
 
   const components = {
@@ -292,16 +369,13 @@ export default function Schedule(height, appt) {
       const data = event?.data;
       if (data?.appointment)
         return (
-          <ApptEvent
-            appointment={data?.appointment}
-            isMonthView={view === Views.MONTH}
-            zusatzInfo={event.zusatzInfo}
-            // handleOnClick={handleOnSelectEvent}
-          />
+          <ApptEvent appointment={data?.appointment} isMonthView={view === Views.MONTH} zusatzInfo={event.zusatzInfo} />
         );
-
       if (data?.blockout) {
         return <BlockoutEvent blockout={data?.blockout} />;
+      }
+      if (data?.extAppt) {
+        return <ExtApptEvent appointment={data?.extAppt} isMonthView={view === Views.MONTH} />;
       }
 
       return null;
@@ -456,6 +530,7 @@ export default function Schedule(height, appt) {
         >
           <DnDCalendar
             selectable
+            popup
             localizer={localizer}
             events={events}
             // defaultDate={semesterStart}
@@ -474,9 +549,11 @@ export default function Schedule(height, appt) {
             date={date}
             view={view}
             views={views}
+            step={15}
+            timeslots={4}
             onView={setView}
             onNavigate={(date) => setDate(dayjs(date))}
-            onSelectSlot={onSlotSelect}
+            // onSelectSlot={onSlotSelect}
             draggableAccessor={(event) => !!event.isDraggable}
             onEventDrop={onChangeEventTime}
             resizableAccessor={() => false}

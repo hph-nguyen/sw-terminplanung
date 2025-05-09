@@ -30,7 +30,7 @@ export const formatDauerZuEndzeit = (anfangszeit, dauer) => {
   return startTime.add(dauer, "minute").format("HH:mm");
 };
 
-export const generateRecurringEvents = (event, exdates = []) => {
+export const generateRecurringEvents = (event, exdates = [], dataKey = "appointment") => {
   const { id, start, end, resourceId, weekday, rhythmus, dauer, originalEvent, ...props } = event;
 
   let interval = rhythmus === "VZ" || rhythmus === "VZ2" ? 2 : 1;
@@ -120,7 +120,7 @@ export const generateRecurringEvents = (event, exdates = []) => {
             start: eventStart.toDate(),
             end: eventEnd.toDate(),
             data: {
-              appointment: {
+              [dataKey]: {
                 id,
                 color: originalEvent.color,
                 time: `${eventStart.format("HH:mm")} - ${eventEnd.format("HH:mm")}`,
@@ -137,4 +137,22 @@ export const generateRecurringEvents = (event, exdates = []) => {
   });
 
   return allEvents;
+};
+
+export const normalizeTime = (str) => {
+  if (!str.includes(":")) {
+    // Convert from Min to Time
+    const minutes = parseInt(str, 10);
+    return dayjs().startOf("day").add(minutes, "minute").format("HH:mm");
+  }
+
+  // Handle time strings e.g. 8:0 to 08:00
+  const [h, m] = str.split(":").map((n) => parseInt(n, 10));
+  return dayjs().hour(h).minute(m).format("HH:mm");
+};
+
+export const getFirstMonday = (date) => {
+  const startDate = dayjs(date);
+  const daysToAdd = (8 - startDate.day()) % 7;
+  return startDate.add(daysToAdd, "day").format("YYYY-MM-DD");
 };

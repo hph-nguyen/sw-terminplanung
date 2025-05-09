@@ -1,24 +1,19 @@
 import { Box, Typography } from "@mui/material";
-import { EVENT_COLOR } from "../../constants";
+import { deepPurple } from "@mui/material/colors";
 
-export default function ApptEvent({ appointment, isMonthView, zusatzInfo = "" }) {
+export default function ExtApptEvent({ appointment, isMonthView }) {
   if (appointment) {
-    const { time, color, rhythmus, details = "" } = appointment;
-    const bgColor = EVENT_COLOR[color];
+    const { time, rhythmus, details = "" } = appointment;
 
     return (
       <Box
         sx={{
           userSelect: "none",
-          backgroundColor: bgColor,
+          backgroundColor: deepPurple[100],
           p: 1,
           height: "100%",
           color: "black",
           ...(isMonthView && { overflow: "hidden", height: 22, pt: 0 }),
-        }}
-        draggable={false}
-        onDragStart={(e) => {
-          e.stopPropagation();
         }}
       >
         <Box sx={{ alignItems: "center", justifyContent: "space-between", display: "flex" }}>
@@ -37,11 +32,6 @@ export default function ApptEvent({ appointment, isMonthView, zusatzInfo = "" })
                   <strong>{detail}</strong> <br />
                 </Typography>
               ))}
-              {zusatzInfo && zusatzInfo.trim() !== "" && (
-                <Typography variant="h7" color="primary">
-                  <i>{zusatzInfo}</i>
-                </Typography>
-              )}
             </>
           )}
         </Box>
