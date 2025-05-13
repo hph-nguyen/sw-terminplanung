@@ -6,7 +6,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./shared/ProtectedRoute";
 import ErrorPage from "./pages/ErrorPage";
 import { LoginPage } from "./pages/LoginPage";
-import GebuchtTermine from "./components/Terminplanung/GebuchtTermine";
+import WunschTermine from "./components/Terminplanung/WunschTermine";
 
 function App() {
   return (
@@ -24,7 +24,7 @@ function App() {
               errorElement={<ErrorPage />}
             />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/gebuchte-termine" element={<GebuchtTermine height="100vh" hideFullScreenButton={true} />} />
+            <Route path="/wunschtermine" element={<WunschTermine height="100vh" hideFullScreenButton={true} />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

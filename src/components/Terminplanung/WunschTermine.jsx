@@ -14,12 +14,14 @@ import dayjs from "dayjs";
 import { grey } from "@mui/material/colors";
 import { EventAvailable, EventBusy } from "@mui/icons-material";
 import { Fullscreen } from "@mui/icons-material";
+import MUIDialog from "../../shared/MUIDialog";
+import BuchTerminForm from "./BuchTerminForm";
 // import MUIAccordion from "../../shared/MUIAccordion";
 
 const CustomToolbar = ({ hideFullScreenButton = false, onFullScreenClick }) => {
   const handleOpenFullView = () => {
     if (onFullScreenClick) onFullScreenClick();
-    window.open("/gebuchte-termine", "_blank");
+    window.open("/wunschtermine", "_blank");
   };
 
   return (
@@ -34,20 +36,27 @@ const CustomToolbar = ({ hideFullScreenButton = false, onFullScreenClick }) => {
   );
 };
 
-const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleBookAppt, onFullScreenClick }) => {
-  const [rows, setRows] = useState([]);
+const WunschTermine = ({
+  height = "100%",
+  hideFullScreenButton = false,
+  rowData,
+  onFullScreenClick,
+  onBookAppt,
+  onCancleAppt,
+}) => {
+  const [rows, setRows] = useState(rowData);
   const [openForm, setOpenForm] = useState(false);
-  const [terminToEdit, setTerminToEdit] = useState({});
+  const [wTerminToBook, setWTermintoBook] = useState({});
 
   // Broadcast channel to sync update for multi-Window.
   // So that each change from full screen table will be updated automatically in main window table
-  const channel = new BroadcastChannel("gebuchteTermineChannel");
+  const channel = new BroadcastChannel("wunschtermineChannel");
   useEffect(() => {
-    getGebuchteTermine();
+    getWunschtermine();
     const handleChannelMessage = (message) => {
       if (message.data === "update") {
         // console.log("Update detected via BroadcastChannel!");
-        getGebuchteTermine();
+        getWunschtermine();
       }
     };
     // Attach event listener to the channel
@@ -59,6 +68,10 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    setRows(rowData);
+  }, [rowData]);
+
   const handleEditClick = (e) => () => {
     if (!e?.row?.rawData) return "";
 
@@ -69,29 +82,17 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
       Object.entries(rawData).map(([key, value]) => [key, value === null ? "" : value])
     );
     sanitizedData.vformat = sanitizedData.vformat ? sanitizedData.vformat.split(",") : [];
-    sanitizedData.status = "geaendert";
-    setTerminToEdit(sanitizedData);
+    setWTermintoBook(sanitizedData);
     setOpenForm(true);
   };
 
   const handleBook = async (e) => {
-    const benId = JSON.parse(sessionStorage.getItem("user")).benutzer_id;
-    const res = await apiService.putWunschTermin(
-      sessionStorage.getItem("currentSemester"),
-      { ...e, vformat: e.vformat.toString(), dauer: dauerBerechnung(e.anfangszeit, e.bis) },
-      benId
-    );
-    if (res.status === 200) {
-      setOpenForm(false);
-      getGebuchteTermine(benId);
-    } else {
-      console.log(res);
-    }
+    console.log({ ...e, vformat: e.vformat.toString(), dauer: dauerBerechnung(e.anfangszeit, e.bis) });
   };
 
-  const getGebuchteTermine = async () => {
+  const getWunschtermine = async () => {
     try {
-      const res = await apiService.getAllGebuchteTermine(sessionStorage.getItem("currentSemester"));
+      const res = await apiService.getAllWunschtermine(sessionStorage.getItem("currentSemester"));
       if (Array.isArray(res.data)) {
         const terminList = res.data.map((el) => ({
           id: el.id,
@@ -103,7 +104,7 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
           vformat: el.vformat,
           lv_termin: el.wochentag
             ? `${numberToWeekday(el.wochentag)},  ${formatTimeRange(el.anfangszeit, el.dauer)}`
-            : `${dayjs(el.start_datum).format("DD.MM.YYYY")},  ${formatTimeRange(el.anfangszeit, el.dauer)}`,
+            : ` ${dayjs(el.start_datum).format("DD.MM.YYYY")},  ${formatTimeRange(el.anfangszeit, el.dauer)}`,
           start_datum: el.wochentag ? el.start_datum : "",
           raum_wunsch: el.raum_wunsch,
           co_dozent: el.co_dozent,
@@ -132,7 +133,8 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
       if (benutzerId) {
         const res = await apiService.putWunschTermin(sessionStorage.getItem("currentSemester"), temp, benutzerId);
         if (res.status === 200) {
-          getGebuchteTermine();
+          getWunschtermine();
+          onCancleAppt();
           channel.postMessage("update");
         } else {
           console.log(res);
@@ -267,15 +269,15 @@ const GebuchtTermine = ({ height = "100%", hideFullScreenButton = false, handleB
         />
       </Box>
 
-      {/* <MUIDialog
-          onOpen={openForm}
-          onClose={() => setOpenForm(false)}
-          content={<BuchTerminForm initialValues={terminToEdit} onSubmit={handleBook} />}
-          disableBackdropClick="true"
-          title={"Gebuchten Termin ändern"}
-        /> */}
+      <MUIDialog
+        onOpen={openForm}
+        onClose={() => setOpenForm(false)}
+        content={<BuchTerminForm initialValues={wTerminToBook} onSubmit={handleBook} />}
+        disableBackdropClick="true"
+        title={"Gebuchten Termin ändern"}
+      />
     </Box>
   );
 };
 
-export default GebuchtTermine;
+export default WunschTermine;

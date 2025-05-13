@@ -3,6 +3,7 @@ import { EditCalendar, Delete } from "@mui/icons-material";
 import { POPOVER_EVENT_COLOR } from "../../constants";
 
 const fields = [
+  { label: "WunschterminID", key: "wunschtermin_id" },
   { label: "Dozent", key: "wunschtermin.dozent" },
   {
     label: "Modul",

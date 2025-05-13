@@ -55,7 +55,7 @@ export const getLvListe = async (semester) => {
   }
 };
 
-export const getAllGebuchteTermine = async (semester) => {
+export const getAllWunschtermine = async (semester) => {
   try {
     const res = await httpRequest.get(`${checkSemesterSlash(semester)}/swWunschtermine`);
     return res;
@@ -281,3 +281,47 @@ export const editDozent = async (semester, data, namensFilter) => {
     return e;
   }
 };
+
+/**
+ *
+ * @param {*} semester
+ * @param {*} data
+ * @returns
+ */
+export const getSemesterhaelfte = async (semester) => {
+  try {
+    const response = await httpRequest.post(
+      `${semester}/semesterhaelfte`,
+      apptSchema,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+/**
+ * Für graphische Stellung von SH1 & SH2 Termine ist nur die ISODatum von endSH1 benötigt.
+ * Diese Datum kann man mit alle Termine durch Request gleiche Werte bekommen.
+ * Um die Anzahl unnötiger Request an den Server zu minimieren.
+ * Beim Laden der Seite oder Semesterwechseln wird nur ein Request mit Const.ApptSchema gesendet.
+ * Dieses Schema folgt dem externen Appt
+ */
+const apptSchema = [
+  {
+    wochentag: "",
+    anfangszeit: "",
+    gebuchtvon: "",
+    datum: "-",
+    dauer: "",
+    gu: "N",
+    semesterhaelfte: "0",
+    fakultaet: "",
+    semestername: sessionStorage.getItem("semesterName") || "",
+    turnus: "",
+    name: "",
+    dozent: "-",
+    kommentar: "",
+  },
+];
