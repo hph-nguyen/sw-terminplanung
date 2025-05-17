@@ -17,7 +17,6 @@ const EditTerminForm = ({ onSubmit, initialValues, onCloseForm, roomsOpt }) => {
     setFieldValue("bis", formatDauerZuEndzeit(wt.anfangszeit, wt.dauer));
     setFieldValue("wochentag", wt.wochentag);
     setFieldValue("start_datum", wt.start_datum || "");
-    setFieldValue("vformat", [wt.vformat]);
   };
 
   return (

@@ -384,10 +384,8 @@ const Terminplanung = () => {
     if (isExpanded) {
       setTableHeight("30vh");
       setScheduleHeight("46vh");
-      setTableHeight("30vh");
-      setScheduleHeight("46vh");
     } else {
-      setTableHeight("1vh");
+      setTableHeight("0vh");
       setScheduleHeight("75vh");
     }
   };
@@ -493,8 +491,8 @@ const Terminplanung = () => {
         elevation="0"
         defaultExpanded={true}
         onChange={handleAccordionChange}
-        sxSummary={{ padding: 0 }}
-        sxDetails={{ padding: 0 }}
+        sxSummary={{ py: 0, pl: 1, pr: 2.5 }}
+        sxDetails={{ p: 0 }}
       >
         <WunschTermine height={tableHeight} rowData={wTermine} getWunschtermine={getWunschtermine} />
       </MUIAccordion>
