@@ -19,9 +19,7 @@ import {
 import dayjs from "dayjs";
 import WunschTermine from "./WunschTermine";
 import AlertSnackbar from "../../shared/AlertSnackbar";
-import GeplanteTerminTabelle from "./GeplanteTerminTabelle";
 import MUIDialog from "../../shared/MUIDialog";
-import BuchTerminForm from "./BuchTerminForm";
 import EditTerminForm from "./EditTerminForm";
 import { sanitizeNulls } from "../../services/utils";
 
