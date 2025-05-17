@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Box, Paper } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import Schedule from "./Schedule";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -18,6 +18,12 @@ import {
 } from "../../services/timeUtils";
 import dayjs from "dayjs";
 import WunschTermine from "./WunschTermine";
+import AlertSnackbar from "../../shared/AlertSnackbar";
+import GeplanteTerminTabelle from "./GeplanteTerminTabelle";
+import MUIDialog from "../../shared/MUIDialog";
+import BuchTerminForm from "./BuchTerminForm";
+import EditTerminForm from "./EditTerminForm";
+import { sanitizeNulls } from "../../services/utils";
 
 const Terminplanung = () => {
   const [scheduleHeight, setScheduleHeight] = useState("48vh");
@@ -33,39 +39,63 @@ const Terminplanung = () => {
   const [feiertage, setFeiertage] = useState([]);
 
   const [wTermine, setWTermine] = useState([]);
+  const [terminToEdit, setTerminToEdit] = useState([]);
 
-  const [resources, setResources] = useState([]);
-  const [roomsList, setRoomsList] = useState([]);
+  const [calResources, setCalResources] = useState([]);
+  const [resourcesIds, setRoomsList] = useState([]);
+
   const [events, setEvents] = useState([]);
+  const [tableEvents, setTableEvents] = useState([]);
 
+  const [openForm, setOpenForm] = useState(false);
+
+  const [alertMsg, setAlertMsg] = useState("");
+  const [alert, setAlert] = useState(false);
+  const [alertType, setAlertType] = useState("");
+
+  const semester = useRef(sessionStorage.getItem("currentSemester"));
   const endeSH1 = useRef(null);
 
+  const channel = new BroadcastChannel("wunschtermineChannel");
   useEffect(() => {
-    getWunschtermine();
+    const handleChannelMessage = (event) => {
+      // console.log("Terminplanung received message:", event.data);
+      if (event.data === "update") {
+        getGeplanteTermine();
+      }
+    };
+
+    channel.addEventListener("message", handleChannelMessage);
+    return () => {
+      channel.removeEventListener("message", handleChannelMessage);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const getRoomsList = async () => {
       try {
-        const res = await apiService.getRoomsList(sessionStorage.getItem("currentSemester"), "sw");
-        const roomsList = res.data.map((el) => el.name);
+        const res = await apiService.getRoomsList(semester.current, "sw");
+        const resourcesIds = res.data.map((el) => el.name);
         const temp = res.data.map((el) => {
           return {
             id: el.name,
             title: `${el.name} (${el.platzzahl})`,
           };
         });
-        setRoomsList(roomsList);
-        setResources(temp);
-        return roomsList;
+        setRoomsList(resourcesIds);
+        setCalResources(temp);
+        return resourcesIds;
       } catch (e) {
         console.log(e);
       }
     };
     const fetchAll = async () => {
       await getSemesterhaelfte();
-      const rooms = await getRoomsList();
+      const resources = await getRoomsList();
       const { exdates, feiertage } = await getExDates();
-      await getGeplanteTermine(rooms, exdates, feiertage);
+      await getGeplanteTermine(resources, exdates, feiertage);
     };
-    getWunschtermine();
     fetchAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -136,6 +166,17 @@ const Terminplanung = () => {
           /**
            * SW-Appt
            */
+          const tableEvents = res.data
+            .filter((t) => t.id !== "ext")
+            .map((t) => {
+              return {
+                ...t,
+                zeit: t.wochentag
+                  ? `${numberToWeekday(t.wochentag)},  ${formatTimeRange(t.anfangszeit, t.dauer)}`
+                  : `${dayjs(t.start_datum).format("DD.MM.YYYY")},  ${formatTimeRange(t.anfangszeit, t.dauer)}`,
+              };
+            });
+          setTableEvents(tableEvents);
           const termine = res.data
             .filter((t) => t.id !== "ext")
             .map((t) => {
@@ -334,43 +375,87 @@ const Terminplanung = () => {
     }
   };
 
+  // Klicken auf Kalendar, um Termin zu buchen --> noch nicht verfügbar
+  // Um die Funktion verfügbar zu machen, unkommentiert "selectable" prop in Schedule DnDCalendar als TRUE
   const handleOnSlotSelect = ({ start, end }) => {
     console.log("handleOnSlotSelect: ", start, end);
   };
 
-  const handleAccordionChange = (event, isExpanded) => {
+  // Height anpassen
+  const handleAccordionChange = (_, isExpanded) => {
     if (isExpanded) {
       setTableHeight("30vh");
-      setScheduleHeight("48vh");
+      setScheduleHeight("46vh");
       setTableHeight("30vh");
-      setScheduleHeight("48vh");
+      setScheduleHeight("46vh");
     } else {
       setTableHeight("1vh");
       setScheduleHeight("75vh");
     }
   };
 
-  // const handleCancelClick = async (rowData) => {
-  //   if (!window.confirm("Sind Sie sicher, diese Buchung zu stornieren?")) return;
+  const handleDeleteAppt = async (selectedEvent) => {
+    try {
+      const res = await apiService.deleteTermin(semester.current, selectedEvent);
+      if (res.status === 200) {
+        setAlert(true);
+        setAlertMsg("Termin wird erfolgereich gelöscht");
+        setAlertType("success");
+        setAnchorEl(null);
+      } else {
+        setAlert(true);
+        setAlertMsg("Etwas ist schiefgelaufen, Termin kann nicht gelöscht werden");
+      }
+      await getWunschtermine();
+      await getGeplanteTermine(resourcesIds, exdates, feiertage);
+    } catch (error) {
+      console.error("Delete failed:", error);
+      setAlert(true);
+      setAlertMsg("Fehler beim Löschen des Termins");
+      setAlertType("error");
+      await getWunschtermine();
+    }
+    channel.postMessage("update");
+  };
 
-  //   const updated = { ...rowData, status: "storniert" };
-  //   Object.keys(updated).forEach((k) => (updated[k] ??= ""));
+  const onEditClick = (e) => {
+    setOpenForm(true);
+    setAnchorEl(null);
+    const data = sanitizeNulls(e);
+    const temp = { ...data, vformat: data.wunschtermin.vformat.split(",") };
+    setTerminToEdit(temp);
+  };
 
-  //   const res = await apiService.putWunschTermin(
-  //     sessionStorage.getItem("currentSemester"),
-  //     updated,
-  //     updated.benutzer_id
-  //   );
-
-  //   if (res.status === 200) {
-  //     await getWunschtermine();
-  //   } else {
-  //     console.error(res);
-  //   }
-  // };
-
-  const onWunschterminStornieren = () => {
-    getGeplanteTermine();
+  const handleEditAppt = async (event) => {
+    const { bis, wunschtermin, vformat, ...rest } = event;
+    const sendEvent = { ...rest, vformat: vformat.toString() };
+    try {
+      const res = await apiService.putTermin(semester.current, sendEvent);
+      if (res.status === 200) {
+        setAlert(true);
+        setAlertMsg("Termin wird erfolgereich geändert");
+        setAlertType("success");
+        setAnchorEl(null);
+      } else if (res.status === 409) {
+        const msg = res.response.data.substring(res.response.data.indexOf(":") + 1).trim();
+        setAlert(true);
+        setAlertMsg(`Termin kann nicht ändert werden. Grund: ${msg}`);
+      } else {
+        console.log(res);
+        setAlert(true);
+        setAlertMsg("Etwas ist schiefgelaufen, Termin kann nicht ändert werden");
+      }
+      await getWunschtermine();
+      await getGeplanteTermine(resourcesIds, exdates, feiertage);
+    } catch (error) {
+      console.error("Delete failed:", error);
+      setAlert(true);
+      setAlertMsg("Fehler beim Aändern des Termins");
+      setAlertType("error");
+      await getWunschtermine();
+    }
+    setOpenForm(false);
+    channel.postMessage("update");
   };
 
   const handleClosePopover = () => {
@@ -413,24 +498,61 @@ const Terminplanung = () => {
         sxSummary={{ padding: 0 }}
         sxDetails={{ padding: 0 }}
       >
-        <WunschTermine
-          height={tableHeight}
-          onCancleAppt={onWunschterminStornieren}
-          rows={wTermine}
-          getWunschtermine={getWunschtermine}
-        />
+        <WunschTermine height={tableHeight} rowData={wTermine} getWunschtermine={getWunschtermine} />
       </MUIAccordion>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Schedule
           height={scheduleHeight}
           handleOnSelectEvent={handleOnSelectEvent}
           handleOnSlotSelect={handleOnSlotSelect}
-          resources={resources}
+          resources={calResources}
           events={events}
+          tableRows={tableEvents}
+          onTableDeleteTermin={handleDeleteAppt}
+          onTableEditTermin={(e) => {
+            onEditClick(e);
+          }}
         />
       </LocalizationProvider>
 
-      <EventPopover anchorEl={anchorEl} onClose={handleClosePopover} event={selectedEvent} color={popoverColor} />
+      <EventPopover
+        anchorEl={anchorEl}
+        onClose={handleClosePopover}
+        event={selectedEvent}
+        color={popoverColor}
+        onDeleteClick={() => handleDeleteAppt(selectedEvent)}
+        onEditClick={() => onEditClick(selectedEvent)}
+      />
+      <AlertSnackbar
+        open={alert}
+        onClose={() => {
+          setAlert(false);
+          setTimeout(() => {
+            setAlertMsg("");
+            setAlertType(false);
+          }, 500);
+        }}
+        message={alertMsg}
+        severity={alertType}
+      ></AlertSnackbar>
+      <MUIDialog
+        onOpen={openForm}
+        onClose={() => setOpenForm(false)}
+        content={
+          <EditTerminForm
+            initialValues={terminToEdit}
+            onSubmit={(e) => handleEditAppt(e)}
+            onCloseForm={() => setOpenForm(false)}
+            roomsOpt={calResources.map((el) => ({ value: el.id, label: el.title }))}
+          />
+        }
+        disableBackdropClick="true"
+        title={
+          <Typography variant="h4" fontWeight={600}>
+            Termin ändern
+          </Typography>
+        }
+      />
     </Paper>
   );
 };

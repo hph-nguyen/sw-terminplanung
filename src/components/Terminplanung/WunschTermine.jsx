@@ -1,22 +1,21 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
-import { Box, Button } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import { Alert, AlertTitle, Box, Button, Snackbar, Typography } from "@mui/material";
 import { GridToolbar, DataGrid, GridActionsCellItem, gridClasses, GridToolbarContainer } from "@mui/x-data-grid";
 
 import { deDE } from "@mui/x-data-grid/locales";
 import { redAccent } from "../../theme";
-// import MUIDialog from "../shared/MUIDialog";
-// import TerminChangeForm from "./TerminChangeForm";
+
 import * as apiService from "../../services/apiService";
-// import ConfirmDialog from "./shared/ConfirmDialog";
-import { numberToWeekday, formatTimeRange, dauerBerechnung } from "../../services/timeUtils";
+import { numberToWeekday, formatTimeRange } from "../../services/timeUtils";
 import dayjs from "dayjs";
-import { grey } from "@mui/material/colors";
+import { amber, blue, green, grey, red } from "@mui/material/colors";
 import { EventAvailable, EventBusy } from "@mui/icons-material";
 import { Fullscreen } from "@mui/icons-material";
 import MUIDialog from "../../shared/MUIDialog";
 import BuchTerminForm from "./BuchTerminForm";
-// import MUIAccordion from "../../shared/MUIAccordion";
+import { TIME_PICKER_VON } from "../../constants";
+import AlertSnackbar from "../../shared/AlertSnackbar";
 
 const CustomToolbar = ({ hideFullScreenButton = false, onFullScreenClick }) => {
   const handleOpenFullView = () => {
@@ -36,17 +35,15 @@ const CustomToolbar = ({ hideFullScreenButton = false, onFullScreenClick }) => {
   );
 };
 
-const WunschTermine = ({
-  height = "100%",
-  hideFullScreenButton = false,
-  rowData,
-  onFullScreenClick,
-  onBookAppt,
-  onCancleAppt,
-}) => {
+const WunschTermine = ({ height = "100%", hideFullScreenButton = false, rowData, onFullScreenClick }) => {
   const [rows, setRows] = useState(rowData);
+  const [roomsList, setRoomsList] = useState([]);
   const [openForm, setOpenForm] = useState(false);
-  const [wTerminToBook, setWTermintoBook] = useState({});
+  const [wTerminToBook, setWTerminToBook] = useState({});
+  const semester = useRef(sessionStorage.getItem("currentSemester"));
+  const [alertMsg, setAlertMsg] = useState("");
+  const [alert, setAlert] = useState(false);
+  const [alertType, setAlertType] = useState("");
 
   // Broadcast channel to sync update for multi-Window.
   // So that each change from full screen table will be updated automatically in main window table
@@ -55,7 +52,6 @@ const WunschTermine = ({
     getWunschtermine();
     const handleChannelMessage = (message) => {
       if (message.data === "update") {
-        // console.log("Update detected via BroadcastChannel!");
         getWunschtermine();
       }
     };
@@ -72,7 +68,25 @@ const WunschTermine = ({
     setRows(rowData);
   }, [rowData]);
 
-  const handleEditClick = (e) => () => {
+  useEffect(() => {
+    const getRoomsList = async () => {
+      try {
+        const res = await apiService.getRoomsList(semester.current, "sw");
+        const temp = res.data.map((el) => {
+          return {
+            value: el.name,
+            label: `${el.name} (${el.platzzahl})`,
+          };
+        });
+        setRoomsList(temp);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getRoomsList();
+  }, []);
+
+  const handleAddApptClick = (e) => () => {
     if (!e?.row?.rawData) return "";
 
     const rawData = e.row.rawData;
@@ -82,12 +96,58 @@ const WunschTermine = ({
       Object.entries(rawData).map(([key, value]) => [key, value === null ? "" : value])
     );
     sanitizedData.vformat = sanitizedData.vformat ? sanitizedData.vformat.split(",") : [];
-    setWTermintoBook(sanitizedData);
+
+    const startTime = TIME_PICKER_VON.filter((item) => item.value === sanitizedData.anfangszeit);
+    const temp = {
+      id: "0", // DEFAULT ID = 0 FOR POST METHOD
+      termin_name: ` ${sanitizedData.modul_id} ${sanitizedData.lv_titel}`,
+      wunschtermin_id: sanitizedData.id,
+      raum: sanitizedData.raum_wunsch ? sanitizedData.raum_wunsch : "",
+      anfangszeit: startTime.length !== 0 ? sanitizedData.anfangszeit : "",
+      dauer: sanitizedData.dauer,
+      status: "geplant",
+      wochentag: sanitizedData.wochentag,
+      rhythmus: sanitizedData.rhythmus,
+      start_datum: sanitizedData.start_datum,
+      semesterhaelfte: "0",
+      benutzer_id: sanitizedData.benutzer_id,
+      vformat: sanitizedData.vformat,
+      wunschtermin: sanitizedData,
+    };
+    setWTerminToBook(temp);
     setOpenForm(true);
   };
 
-  const handleBook = async (e) => {
-    console.log({ ...e, vformat: e.vformat.toString(), dauer: dauerBerechnung(e.anfangszeit, e.bis) });
+  const handleAddAppt = async (e) => {
+    const { vformat, bis, wunschtermin, ...rest } = e;
+    const res = await apiService.postNeuenTermin(semester.current, { ...rest, vformat: e.vformat.toString() });
+    if (res.status === 200) {
+      // if (onAddAppt) onAddAppt();
+      channel.postMessage("update");
+      getWunschtermine();
+      setAlert(true);
+      setAlertMsg("Neuen Termin wird erfolgereich hinzugefügt");
+      setAlertType("success");
+    } else if (res.status === 409) {
+      const msg = res.response.data.substring(res.response.data.indexOf(":") + 1).trim();
+      console.log(msg);
+      setAlert(true);
+      setAlertMsg(`Neuen Termin kann nicht hinzugefügt werden. Grund: ${msg}`);
+      console.log(res);
+    } else {
+      setAlert(true);
+      setAlertMsg(`Etwas ist schiefgelaufen, neuen Termin kann nicht hinzugefügt werden`);
+      console.log(res);
+    }
+    setOpenForm(false);
+  };
+
+  const handleCloseBar = () => {
+    setAlert(false);
+    setTimeout(() => {
+      setAlertMsg("");
+      setAlertType(false);
+    }, 500);
   };
 
   const getWunschtermine = async () => {
@@ -134,7 +194,6 @@ const WunschTermine = ({
         const res = await apiService.putWunschTermin(sessionStorage.getItem("currentSemester"), temp, benutzerId);
         if (res.status === 200) {
           getWunschtermine();
-          onCancleAppt();
           channel.postMessage("update");
         } else {
           console.log(res);
@@ -172,9 +231,9 @@ const WunschTermine = ({
             icon={<EventAvailable />}
             label="Edit"
             className="textPrimary"
-            onClick={handleEditClick(e)}
+            onClick={handleAddApptClick(e)}
             color="primary"
-            disabled={e.row.rawData.status === "storniert" ? true : false}
+            disabled={e.row.rawData.status === "storniert" || e.row.rawData.status === "geplant" ? true : false}
           />,
           <GridActionsCellItem
             key="edit"
@@ -207,16 +266,16 @@ const WunschTermine = ({
             fontSize: 13,
           },
           [`.${gridClasses.cell}.geplant`]: {
-            backgroundColor: "#b9d5ff91",
+            backgroundColor: blue[100],
           },
           [`.${gridClasses.cell}.storniert`]: {
-            backgroundColor: "#f6685e75",
+            backgroundColor: red[100],
           },
           [`.${gridClasses.cell}.angefragt`]: {
-            backgroundColor: "#6fbf7391",
+            backgroundColor: green[100],
           },
           [`.${gridClasses.cell}.geaendert`]: {
-            backgroundColor: "#ffd32c75",
+            backgroundColor: amber[100],
           },
           "& .MuiDataGrid-cell[data-field='id']": {
             fontWeight: "bold",
@@ -272,10 +331,22 @@ const WunschTermine = ({
       <MUIDialog
         onOpen={openForm}
         onClose={() => setOpenForm(false)}
-        content={<BuchTerminForm initialValues={wTerminToBook} onSubmit={handleBook} />}
+        content={
+          <BuchTerminForm
+            initialValues={wTerminToBook}
+            onSubmit={handleAddAppt}
+            onCloseForm={() => setOpenForm(false)}
+            roomsOpt={roomsList}
+          />
+        }
         disableBackdropClick="true"
-        title={"Gebuchten Termin ändern"}
+        title={
+          <Typography variant="h4" fontWeight={600}>
+            Neuen Termin planen
+          </Typography>
+        }
       />
+      <AlertSnackbar open={alert} onClose={handleCloseBar} message={alertMsg} severity={alertType}></AlertSnackbar>
     </Box>
   );
 };

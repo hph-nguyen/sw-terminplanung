@@ -128,7 +128,8 @@ export const generateRecurringEvents = (event, exdates = [], dataKey = "appointm
                 rhythmus: rhythmus,
               },
             },
-            isDraggable: true,
+            // isDraggable: true,
+            isDraggable: false, // DRAGGABLE METHOD IS CURRENTLY NOT AVAILABLE --> SET AS FALSE
             resourceId,
             ...props,
           };

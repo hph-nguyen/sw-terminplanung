@@ -92,7 +92,7 @@ function Row(props) {
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell component="th" scope="row" sx={{ width: "25%" }}>
-          <IconButton aria-label="expand row" size="small" sx={{ mr: 1 }} onClick={() => setOpen(!open)}>
+          <IconButton size="small" sx={{ mr: 1 }} onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
           <strong>{row.modul_id}</strong>
@@ -445,17 +445,12 @@ function Modulverwaltung() {
     <>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer component={Paper} sx={{ maxHeight: "80vh" }}>
-          <Table aria-label="collapsible table" size="small" stickyHeader>
+          <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ width: "25%", backgroundColor: redAccent[500] }}>
                   <Typography color="white">
-                    <IconButton
-                      aria-label="expand row"
-                      size="small"
-                      onClick={() => setOpenAll(!openAll)}
-                      sx={{ color: "white", mr: 1 }}
-                    >
+                    <IconButton size="small" onClick={() => setOpenAll(!openAll)} sx={{ color: "white", mr: 1 }}>
                       {openAll ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
                     </IconButton>
                     <strong onClick={() => requestSort("modul_id")} style={{ cursor: "pointer" }}>

@@ -105,6 +105,8 @@ export const RESOURCES = [
   { id: "BL312", title: "BL312" },
   { id: "BL315", title: "BL315" },
 ];
+
+// TEST DATA
 export const EVENTS = [
   {
     wochentag: 0,

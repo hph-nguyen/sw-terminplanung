@@ -28,7 +28,6 @@ import Zugangscode from "../components/Zugangscode/Zugangscode";
 import ConfirmDialog from "../shared/ConfirmDialog";
 import { useAuth } from "../hooks/useAuth";
 import { redAccent } from "../theme";
-import GeplanteTermine from "../components/GeplanteTermine/GeplanteTermine";
 
 const drawerWidth = 240;
 
@@ -110,7 +109,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== "open" 
 const menuItems = [
   { item: "Modulverwaltung", icon: <BookIcon />, component: <Modulverwaltung /> },
   { item: "Terminplanung", icon: <CalendarMonthIcon />, component: <Terminplanung /> },
-  { item: "Geplante Termine", icon: <EventAvailable />, component: <GeplanteTermine /> },
   { item: "Benutzerverwaltung", icon: <GroupIcon />, component: <Benutzerverwaltung /> },
   { item: "Zugangscode", icon: <VpnKey />, component: <Zugangscode /> },
 ];
@@ -153,7 +151,6 @@ export default function HomePage() {
         <Toolbar>
           <IconButton
             color="primary"
-            aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
             sx={[{ marginRight: 5 }, open && { display: "none" }]}

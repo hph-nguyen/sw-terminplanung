@@ -98,7 +98,6 @@ const Benutzerverwaltung = () => {
   };
   const handleEditClick = (e) => {
     setSelectedDozent(e.row);
-    console.log(e.row);
     setOpenEditPerson(true);
   };
 

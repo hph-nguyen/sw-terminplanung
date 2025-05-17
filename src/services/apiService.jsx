@@ -243,6 +243,45 @@ export const getSemesterAnfangUndEnde = async (semester) => {
   }
 };
 
+export const postNeuenTermin = async (semester, body) => {
+  try {
+    const res = await httpRequest.post(
+      `${checkSemesterSlash(semester)}/swAppt`,
+      body,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return res;
+  } catch (e) {
+    return e;
+  }
+};
+
+export const putTermin = async (semester, body) => {
+  try {
+    const res = await httpRequest.put(
+      `${checkSemesterSlash(semester)}/swAppt`,
+      body,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return res;
+  } catch (e) {
+    return e;
+  }
+};
+
+export const deleteTermin = async (semester, body) => {
+  try {
+    const res = await httpRequest.post(
+      `${checkSemesterSlash(semester)}/swAppt/delete`,
+      body,
+      httpRequest.basicAuthen(getUserData())
+    );
+    return res;
+  } catch (e) {
+    return e;
+  }
+};
+
 export const getAllBenutzer = async (semester) => {
   try {
     const res = await httpRequest.get(
