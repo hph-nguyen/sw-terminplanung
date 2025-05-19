@@ -37,9 +37,13 @@ export default function Schedule({
 }) {
   // const [semesterStart, setSemesterStart] = useState(getFirstMonday(sessionStorage.getItem("semesterStart")));
   const semesterStart = useRef(getFirstMonday(sessionStorage.getItem("semesterStart")));
-  const [date, setDate] = useState(dayjs(semesterStart.current));
-  const [view, setView] = useState(Views.DAY);
-  const [groupResourcesOnWeek, setGroupResourcesOnWeek] = useState(true);
+  const [date, setDate] = useState(
+    sessionStorage.getItem("currentDate") ? dayjs(sessionStorage.getItem("currentDate")) : dayjs(semesterStart.current)
+  );
+  const [view, setView] = useState(
+    sessionStorage.getItem("currentView") ? sessionStorage.getItem("currentView") : "week"
+  );
+  const [groupResourcesOnWeek, setGroupResourcesOnWeek] = useState(false);
   const showDatePicker = useMediaQuery("(min-width:1080px)");
 
   const [scheduleView, setScheduleView] = useState(true);
@@ -51,23 +55,33 @@ export default function Schedule({
   };
 
   const onPrevClick = useCallback(() => {
+    let newDate;
+
     if (view === Views.DAY) {
-      setDate(dayjs(date).subtract(1, "d"));
+      newDate = dayjs(date).subtract(1, "d");
     } else if (view === Views.WEEK) {
-      setDate(dayjs(date).subtract(1, "w"));
+      newDate = dayjs(date).subtract(1, "w");
     } else {
-      setDate(dayjs(date).subtract(1, "M"));
+      newDate = dayjs(date).subtract(1, "M");
     }
+
+    setDate(newDate);
+    sessionStorage.setItem("currentDate", dayjs(newDate).local("de").toISOString());
   }, [view, date]);
 
   const onNextClick = useCallback(() => {
+    let newDate;
+
     if (view === Views.DAY) {
-      setDate(dayjs(date).add(1, "d"));
+      newDate = dayjs(date).add(1, "d");
     } else if (view === Views.WEEK) {
-      setDate(dayjs(date).add(1, "w"));
+      newDate = dayjs(date).add(1, "w");
     } else {
-      setDate(dayjs(date).add(1, "M"));
+      newDate = dayjs(date).add(1, "M");
     }
+
+    setDate(newDate);
+    sessionStorage.setItem("currentDate", dayjs(newDate).local("de").toISOString());
   }, [view, date]);
 
   const dateText = useMemo(() => {
@@ -174,6 +188,7 @@ export default function Schedule({
                   value={date}
                   onChange={(date) => {
                     setDate(dayjs(date).locale("de"));
+                    sessionStorage.setItem("currentDate", date.toISOString());
                   }}
                   format="DD.MM.YYYY"
                   slotProps={{
@@ -234,7 +249,11 @@ export default function Schedule({
                     variant="contained"
                     disableElevation
                     key={id}
-                    onClick={() => setView(id)}
+                    onClick={() => {
+                      sessionStorage.setItem("currentView", id);
+                      sessionStorage.setItem("currentDate", date.toISOString());
+                      setView(id);
+                    }}
                     {...(id === view
                       ? {
                           color: "primary",

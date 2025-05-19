@@ -11,7 +11,7 @@ import WunschTermine from "./components/Terminplanung/WunschTermine";
 function App() {
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename="/sw-terminplanung">
         <AuthProvider>
           <Routes>
             <Route

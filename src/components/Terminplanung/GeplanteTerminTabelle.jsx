@@ -44,7 +44,7 @@ const GeplanteTerminTabelle = ({ rows = [], onDeleteTermin, onEditTermin }) => {
     {
       field: "Edit",
       sortable: false,
-      flex: 1,
+      flex: 0.75,
       renderCell: (e) => {
         return (
           <>

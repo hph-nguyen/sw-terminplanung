@@ -15,6 +15,7 @@ const fields = [
   { label: "Startdatum", key: "wunschtermin.start_datum" },
   { label: "Kommentar", key: "wunschtermin.anmerkung" },
   { label: "Raum", key: "raum" },
+  { label: "Format", key: "wunschtermin.vformat" },
 ];
 
 const getNestedValue = (obj, path) => path.split(".").reduce((o, k) => (o ? o[k] : null), obj);

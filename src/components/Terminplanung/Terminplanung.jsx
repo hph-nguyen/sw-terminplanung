@@ -22,6 +22,7 @@ import AlertSnackbar from "../../shared/AlertSnackbar";
 import MUIDialog from "../../shared/MUIDialog";
 import EditTerminForm from "./EditTerminForm";
 import { sanitizeNulls } from "../../services/utils";
+import { Co2Sharp } from "@mui/icons-material";
 
 const Terminplanung = () => {
   const [scheduleHeight, setScheduleHeight] = useState("48vh");
@@ -55,11 +56,12 @@ const Terminplanung = () => {
   const endeSH1 = useRef(null);
 
   const channel = new BroadcastChannel("wunschtermineChannel");
+
   useEffect(() => {
-    const handleChannelMessage = (event) => {
+    const handleChannelMessage = async (event) => {
       // console.log("Terminplanung received message:", event.data);
       if (event.data === "update") {
-        getGeplanteTermine();
+        fetchAll();
       }
     };
 
@@ -69,40 +71,41 @@ const Terminplanung = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   useEffect(() => {
-    const getRoomsList = async () => {
-      try {
-        const res = await apiService.getRoomsList(semester.current, "sw");
-        const resourcesIds = res.data.map((el) => el.name);
-        const temp = res.data.map((el) => {
-          return {
-            id: el.name,
-            title: `${el.name} (${el.platzzahl})`,
-          };
-        });
-        setRoomsList(resourcesIds);
-        setCalResources(temp);
-        return resourcesIds;
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    const fetchAll = async () => {
-      await getSemesterhaelfte();
-      const resources = await getRoomsList();
-      const { exdates, feiertage } = await getExDates();
-      await getGeplanteTermine(resources, exdates, feiertage);
-    };
+    getSemesterhaelfte();
+
     fetchAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const fetchAll = async () => {
+    const resources = await getRoomsList();
+    const { exdates, feiertage } = await getExDates();
+    await getGeplanteTermine(resources, exdates, feiertage);
+  };
 
   // Nur das ISODatum endSH1 wird genommen.
   const getSemesterhaelfte = async () => {
     const res = await apiService.getSemesterhaelfte(sessionStorage.getItem("currentSemester"));
     if (res.status === 200) endeSH1.current = res.data.endeSH1;
     else console.log(res);
+  };
+
+  const getRoomsList = async () => {
+    try {
+      const res = await apiService.getRoomsList(semester.current, "sw");
+      const resourcesIds = res.data.map((el) => el.name);
+      const temp = res.data.map((el) => {
+        return {
+          id: el.name,
+          title: `${el.name} (${el.platzzahl})`,
+        };
+      });
+      setRoomsList(resourcesIds);
+      setCalResources(temp);
+      return resourcesIds;
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const getWunschtermine = async () => {
@@ -156,6 +159,7 @@ const Terminplanung = () => {
   };
 
   const getGeplanteTermine = async (resources = [], exdates = [], feiertage = []) => {
+    // console.log(feiertage);
     try {
       const res = await apiService.getAllGeplanteTermine(sessionStorage.getItem("currentSemester"));
       // console.log(res.data);
@@ -432,6 +436,8 @@ const Terminplanung = () => {
         setAlertMsg("Termin wird erfolgereich geändert");
         setAlertType("success");
         setAnchorEl(null);
+        await getWunschtermine();
+        await getGeplanteTermine(resourcesIds, exdates, feiertage);
       } else if (res.status === 409) {
         const msg = res.response.data.substring(res.response.data.indexOf(":") + 1).trim();
         setAlert(true);
@@ -442,7 +448,6 @@ const Terminplanung = () => {
         setAlertMsg("Etwas ist schiefgelaufen, Termin kann nicht ändert werden");
       }
       await getWunschtermine();
-      await getGeplanteTermine(resourcesIds, exdates, feiertage);
     } catch (error) {
       console.error("Delete failed:", error);
       setAlert(true);

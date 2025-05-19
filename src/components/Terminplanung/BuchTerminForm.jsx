@@ -75,6 +75,10 @@ const BuchTerminForm = ({ onSubmit, initialValues, onCloseForm, roomsOpt }) => {
                 label="Von"
                 options={TIME_PICKER_VON}
                 defaultValue={initialValues.anfangszeit}
+                onChange={(e) => {
+                  handleChange(e);
+                  if (values.bis) setFieldValue("dauer", dauerBerechnung(e.target.value, values.bis));
+                }}
               />
               <FormSelect
                 name="bis"

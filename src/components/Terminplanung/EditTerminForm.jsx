@@ -84,6 +84,10 @@ const EditTerminForm = ({ onSubmit, initialValues, onCloseForm, roomsOpt }) => {
                 label="Von"
                 options={TIME_PICKER_VON}
                 defaultValue={initialValues.anfangszeit}
+                onChange={(e) => {
+                  handleChange(e);
+                  if (values.bis) setFieldValue("dauer", dauerBerechnung(e.target.value, values.bis));
+                }}
               />
               <FormSelect
                 name="bis"
@@ -121,7 +125,7 @@ const EditTerminForm = ({ onSubmit, initialValues, onCloseForm, roomsOpt }) => {
                 helperText={"Mehrfach wählbar"}
                 span={2}
               />
-              {initialValues.wunschtermin?.status !== "geaendert" && (
+              {initialValues.wunschtermin?.status === "geaendert" && (
                 <Button
                   sx={{ gridColumn: "span 2" }}
                   variant="outlined"

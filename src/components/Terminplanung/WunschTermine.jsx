@@ -20,7 +20,7 @@ import AlertSnackbar from "../../shared/AlertSnackbar";
 const CustomToolbar = ({ hideFullScreenButton = false, onFullScreenClick }) => {
   const handleOpenFullView = () => {
     if (onFullScreenClick) onFullScreenClick();
-    window.open("/wunschtermine", "_blank");
+    window.open("/sw-terminplanung/wunschtermine", "_blank");
   };
 
   return (
