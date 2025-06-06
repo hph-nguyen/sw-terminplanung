@@ -24,6 +24,7 @@ export const LoginPage = () => {
       if (userRes.status !== 200) {
         setErrMsg("Benutzer nicht gefunden");
         setIsError(true);
+        console.log(userRes);
         return;
       }
       // Check if Login valid
@@ -31,6 +32,7 @@ export const LoginPage = () => {
       if (zugangRes.status !== 200) {
         setErrMsg("Anmeldung fehlgeschlagen");
         setIsError(true);
+        console.log(zugangRes);
         return;
       }
       await login({ ...userRes.data, password: e.password });
