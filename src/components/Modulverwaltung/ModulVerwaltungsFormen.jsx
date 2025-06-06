@@ -2,7 +2,7 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Box, Button, TextField } from "@mui/material";
-import { FormInput } from "../components/formComponents";
+import { FormInput } from "../formComponents";
 
 const initialModulValue = {
   modul_id: "",
@@ -91,20 +91,3 @@ export function AddNewLv({ onSubmit, modul_id = "", modul_name = "" }) {
     </Box>
   );
 }
-
-// export function ChangeModul() {
-//   const isNonMobile = useMediaQuery("(min-width:600px)");
-//   const checkoutSchema = yup.object().shape({
-//     modul_id: yup.string().required(),
-//     name: yup.string().required(),
-//   });
-// }
-
-// export function ChangeLv() {
-//   const isNonMobile = useMediaQuery("(min-width:600px)");
-//   const checkoutSchema = yup.object().shape({
-//     id: yup.string().required(),
-//     modul_id: yup.string().required(),
-//     name: yup.string().required(),
-//   });
-// }

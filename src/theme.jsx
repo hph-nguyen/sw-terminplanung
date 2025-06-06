@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import { grey } from "@mui/material/colors";
 // import { grey } from "@mui/material/colors";
 import { deDE } from "@mui/x-data-grid/locales";
 
@@ -17,12 +18,11 @@ export const redAccent = {
 const theme = createTheme({
   deDE,
   palette: {
-    // background: {
-    //   default: grey[200],
-    //   paper: "#ffffff",
-    // },
     primary: {
       main: redAccent[500],
+    },
+    secondary: {
+      main: grey[300],
     },
   },
   typography: {

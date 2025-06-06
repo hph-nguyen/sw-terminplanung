@@ -19,12 +19,15 @@ import OhmLogo from "../assets/OhmLogo.png";
 import { Button } from "@mui/material";
 import BookIcon from "@mui/icons-material/Book";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import Benutzerverwaltung from "../components/Benutzerverwaltung";
-import Terminplanung from "../components/Terminplanung";
-import Modulverwaltung from "../components/Modulverwaltung";
-import { useState } from "react";
-import { AccountCircle, VpnKey } from "@mui/icons-material";
-import Zugangscode from "../components/Zugangscode";
+import Benutzerverwaltung from "../components/Benutzerverwaltung/Benutzerverwaltung";
+import Terminplanung from "../components/Terminplanung/Terminplanung";
+import Modulverwaltung from "../components/Modulverwaltung/Modulverwaltung";
+import { useEffect, useState } from "react";
+import { AccountCircle, EventAvailable, VpnKey } from "@mui/icons-material";
+import Zugangscode from "../components/Zugangscode/Zugangscode";
+import ConfirmDialog from "../shared/ConfirmDialog";
+import { useAuth } from "../hooks/useAuth";
+import { redAccent } from "../theme";
 
 const drawerWidth = 240;
 
@@ -114,16 +117,32 @@ export default function HomePage() {
   const theme = useTheme();
   const [open, setOpen] = useState(true);
   const [selectedComponent, setSelectedComponent] = useState(null);
+  const [openLogOutConfirm, setOpenLogOutConfirm] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(() => sessionStorage.getItem("currentTab") || "Modulverwaltung");
+  const { logout } = useAuth();
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
+
+  useEffect(() => {
+    const storedTab = sessionStorage.getItem("currentTab");
+    if (storedTab) {
+      const foundItem = menuItems.find((item) => item.item === storedTab);
+      if (foundItem) {
+        setSelectedComponent(foundItem.component);
+      }
+    }
+  }, []);
 
   const handleDrawerClose = () => {
     setOpen(false);
   };
 
-  const handleItemClick = (component) => {
+  const handleItemClick = (component, currentItem) => {
     setSelectedComponent(component);
+    setSelectedItem(currentItem);
+    sessionStorage.setItem("currentTab", currentItem);
   };
 
   return (
@@ -132,15 +151,9 @@ export default function HomePage() {
         <Toolbar>
           <IconButton
             color="primary"
-            aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={[
-              {
-                marginRight: 5,
-              },
-              open && { display: "none" },
-            ]}
+            sx={[{ marginRight: 5 }, open && { display: "none" }]}
           >
             <MenuIcon />
           </IconButton>
@@ -151,7 +164,7 @@ export default function HomePage() {
             src={OhmLogo}
           />
           <Box sx={{ ml: "auto" }}>
-            <Button variant="outlined">
+            <Button variant="outlined" onClick={() => setOpenLogOutConfirm(true)}>
               <AccountCircle sx={{ mr: 1 }} />
               Abmelden
             </Button>
@@ -170,59 +183,62 @@ export default function HomePage() {
           {menuItems.map((itemData, index) => (
             <ListItem key={itemData.item} disablePadding sx={{ display: "block" }}>
               <ListItemButton
-                onClick={() => handleItemClick(itemData.component)}
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  open
-                    ? {
-                        justifyContent: "initial",
-                      }
-                    : {
-                        justifyContent: "center",
-                      },
-                ]}
+                selected={selectedItem === itemData.item}
+                onClick={() => handleItemClick(itemData.component, itemData.item)}
+                sx={[{ minHeight: 48, px: 2.5 }, open ? { justifyContent: "initial" } : { justifyContent: "center" }]}
               >
                 <ListItemIcon
                   sx={[
                     {
                       minWidth: 0,
                       justifyContent: "center",
+                      color: selectedItem === itemData.item ? redAccent[500] : "",
                     },
-                    open
-                      ? {
-                          mr: 3,
-                        }
-                      : {
-                          mr: "auto",
-                        },
+                    open ? { mr: 2 } : { mr: "auto" },
                   ]}
                 >
                   {itemData.icon}
                 </ListItemIcon>
-                <ListItemText
-                  primary={itemData.item}
-                  sx={[
-                    open
-                      ? {
-                          opacity: 1,
-                        }
-                      : {
-                          opacity: 0,
-                        },
-                  ]}
-                />
+                <ListItemText primary={itemData.item} sx={[open ? { opacity: 1 } : { opacity: 0 }]} />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 2.5,
+          display: "grid",
+          gridTemplateColumns: "1fr",
+          minWidth: 0,
+          overflowX: "auto",
+        }}
+      >
         <DrawerHeader />
+        {/* <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            minWidth: 0,
+            overflowX: "auto",
+          }}
+        > */}
         {selectedComponent ? selectedComponent : <Modulverwaltung />}
+        {/* </Box> */}
       </Box>
+      <ConfirmDialog
+        msg={"Sind Sie sicher, dass Sie ausloggen möchten?"}
+        open={openLogOutConfirm}
+        onClose={() => setOpenLogOutConfirm(false)}
+        onDecline={() => setOpenLogOutConfirm(false)}
+        onConfirm={() => {
+          setOpenLogOutConfirm(false);
+          sessionStorage.clear();
+          logout();
+        }}
+      ></ConfirmDialog>
     </Box>
   );
 }

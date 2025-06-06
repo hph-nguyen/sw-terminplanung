@@ -17,13 +17,13 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import { TextField, Tooltip, Typography } from "@mui/material";
-import { Add, ArrowDownward, ArrowUpward, Close, Delete, Edit, Save } from "@mui/icons-material";
-import { redAccent } from "../theme";
-import * as apiService from "../services/apiService";
+import { Add, ArrowDownward, ArrowUpward, Close, Delete, Edit, InfoOutlined, Save } from "@mui/icons-material";
+import { redAccent } from "../../theme";
+import * as apiService from "../../services/apiService";
 import { grey } from "@mui/material/colors";
-import MUIDialog from "../shared/MUIDialog";
+import MUIDialog from "../../shared/MUIDialog";
 import { AddNewLv, AddNewModul } from "./ModulVerwaltungsFormen";
-import ConfirmDialog from "../shared/ConfirmDialog";
+import ConfirmDialog from "../../shared/ConfirmDialog";
 
 /**
  * TABLE ROWS DEFINITION
@@ -92,7 +92,7 @@ function Row(props) {
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell component="th" scope="row" sx={{ width: "25%" }}>
-          <IconButton aria-label="expand row" size="small" sx={{ mr: 1 }} onClick={() => setOpen(!open)}>
+          <IconButton size="small" sx={{ mr: 1 }} onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
           <strong>{row.modul_id}</strong>
@@ -249,7 +249,7 @@ Row.propTypes = {
 function Modulverwaltung() {
   const [openAll, setOpenAll] = useState(false);
   const [rows, setRows] = useState([]);
-  const [semester, setSemester] = useState("ss24");
+  const [semester, setSemester] = useState(sessionStorage.getItem("currentSemester"));
   const [sortConfig, setSortConfig] = useState({ key: "modul_id", direction: "ascending" });
 
   const [confirmDeleteModul, setConfirmDeleteModul] = useState(false);
@@ -445,17 +445,12 @@ function Modulverwaltung() {
     <>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer component={Paper} sx={{ maxHeight: "80vh" }}>
-          <Table aria-label="collapsible table" size="small" stickyHeader>
+          <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ width: "25%", backgroundColor: redAccent[500] }}>
                   <Typography color="white">
-                    <IconButton
-                      aria-label="expand row"
-                      size="small"
-                      onClick={() => setOpenAll(!openAll)}
-                      sx={{ color: "white", mr: 1 }}
-                    >
+                    <IconButton size="small" onClick={() => setOpenAll(!openAll)} sx={{ color: "white", mr: 1 }}>
                       {openAll ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
                     </IconButton>
                     <strong onClick={() => requestSort("modul_id")} style={{ cursor: "pointer" }}>
@@ -492,6 +487,11 @@ function Modulverwaltung() {
                   <Tooltip arrow title="Neues Modul hinzufügen">
                     <IconButton sx={{ color: "white" }} onClick={handleOpenAddNewModul}>
                       <Add />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip arrow title="Bei Änderung der Modul-ID bitte das Modul löschen und erneut hinzufügen">
+                    <IconButton sx={{ color: "white", position: "absolute", top: 2, right: 8 }}>
+                      <InfoOutlined />
                     </IconButton>
                   </Tooltip>
                 </TableCell>
