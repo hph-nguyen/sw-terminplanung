@@ -101,6 +101,8 @@ export default function Schedule({
   const components = {
     event: ({ event }) => {
       const data = event?.data;
+      console.log("zusatzInfo", event.zusatzInfo);
+
       if (data?.appointment)
         return (
           <ApptEvent appointment={data?.appointment} isMonthView={view === Views.MONTH} zusatzInfo={event.zusatzInfo} />

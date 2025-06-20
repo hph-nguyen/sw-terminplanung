@@ -352,6 +352,7 @@ const Terminplanung = () => {
               dauer: event.dauer,
               originalEvent: appointment,
               rawData: event.rawData,
+              zusatzInfo: event.zusatzInfo,
             },
             exdates,
             appointmentKey
