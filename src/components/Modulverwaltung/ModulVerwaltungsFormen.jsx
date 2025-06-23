@@ -6,7 +6,7 @@ import { FormInput } from "../formComponents";
 
 /**
  * Formik-Konfiguration für Modulverwaltung
- * Diese Komponente ist nicht verwendet im Projekt,
+ * Diese Komponente ist nicht im Projekt verwendet,
  * da die Verwendung der Inline-Tabellebearbeitung für Modulverwaltung wird entgescheidet.
  */
 
