@@ -81,54 +81,6 @@
 }
 ```
 
-```pseudo
-Function checkSwExtApptKonflikt(semestername, body):
-    newStart = convertToMinutes(body.anfangszeit)
-    newDuration = parseInt(body.dauer)
-    newEnd = newStart + newDuration
-    newRhythmus = body.rhythmus
-
-    // Get alle Termine von Externe
-    apptList = getAllAppointmentsforRoom(semestername, body.raum)
-    wochentag = body.wochentag
-
-    If newRhythmus == "BK":
-        wochentag = weekdayFromDate(body.startDatum)
-
-    If apptList is not empty:
-        sameDayAppts = filter appointments where appt.wochentag == wochentag
-
-        For each appt in sameDayAppts:
-            apptStart = convertToMinutes(appt.anfangszeit)
-            apptEnd = apptStart + parseInt(appt.dauer)
-            gu = appt.gu
-
-            If newRhythmus == "W" or newRhythmus == "VZ2":
-                If timesOverlap(newStart, newEnd, apptStart, apptEnd):
-                    return true
-
-            If newRhythmus == "VZ":
-                If startDatum is missing:
-                    return true
-                evenWeek = isEvenWeek(body.startDatum)
-                If (gu contains "G" and evenWeek) or (gu contains "U" and not evenWeek):
-                    If timesOverlap(newStart, newEnd, apptStart, apptEnd):
-                        return true
-
-            If newRhythmus == "BK":
-                If startDatum is missing:
-                    throw error
-                evenWeek = isEvenWeek(body.startDatum)
-                If gu contains "N":
-                    If timesOverlap(newStart, newEnd, apptStart, apptEnd):
-                        return true
-                If (gu contains "G" and evenWeek) or (gu contains "U" and not evenWeek):
-                    If timesOverlap(newStart, newEnd, apptStart, apptEnd):
-                        return true
-
-    return false
-```
-
 ```
 my-vite-app
 ├── index.html
@@ -145,7 +97,7 @@ my-vite-app
 └── .gitignore
 ```
 
-```js
+````js
 import { BrowserRouter } from "react-router";
 
 ReactDOM.createRoot(root).render(
@@ -174,43 +126,7 @@ export const post = async (path, data, options = {}) => {
   const response = (await httpRequest.post) / put(path, data, options);
   return response;
 };
-```
 
-1. Berechne neue Startzeit, Endzeit, Dauer, Rhythmus und Wochentag des neuen Termins
-2. Wenn Rhythmus == "BK", bestimme Wochentag anhand Startdatum
-3. Hole bestehende Termine im Raum für das Semester
-4. Alle Termine am selben Wochentag basiert auf Raumname in Datenbank abfragen
-5. Für jeden bestehenden Termin:
-   a. Berechne Start- und Endzeit
-   b. Wenn Rhythmus ist W oder VZ2: - Prüfe auf Zeitkollision
-   c. Wenn Rhythmus ist VZ: - Prüfe auf gültiges Datum - Bestimme ob gerade oder ungerade Woche - Prüfe GU-Wert von Externe Termin und passende Woche auf Zeitkollision
-   d. Wenn Rhythmus ist BK: - Prüfe auf gültiges Datum - Prüfe GU-Wert von Externe Termin und passende Woche auf Zeitkollision
-6. Wenn Kollision gefunden  return true
-7. Sonst -> return false
-
-```
-1. Berechne neue Startzeit, Endzeit, Dauer, Rhythmus und Wochentag des neuen Termins
-2. Wenn Rhythmus == "BK", bestimme Wochentag anhand Startdatum
-3. Erstelle WHERE-Bedingung je nachdem ob Raum oder Dozent geprüft wird
-4. Lade Termine aus DB nach Filter
-5. Wenn Liste leer  return false
-6. Für jeden bestehenden Termin:
-   a. Überspringe Termin mit gleicher ID (bei Update mit PUT)
-   b. Berechne Start-/Endzeit, Rhythmus, Wochentag
-   c. Prüfe Rhythmus-Fälle:
-      - "W" oder "VZ2":
-        * Falls DB-Termin "BK", gleiche Wochentag nötig
-        * Prüfe auf Zeitkollision
-      - "BK":
-        * Prüfe Startdatum
-        * Vergleiche mit Terminen je nach Rhythmus ("BK", "W", "VZ") und Woche
-  * Prüfe auf Zeitkollision
-      - "VZ":
-        * Vergleiche Woche bei "VZ" und "BK" Terminen
-        * Prüfe auf Zeitkollision
-7. Wenn Kollision gefunden, return true
-8. Sonst return false
-```
 
 ```json
 {
@@ -282,7 +198,7 @@ export const post = async (path, data, options = {}) => {
     }
 }
 
-```
+````
 
 ```txt
 https://editor.plantuml.com/uml/VP11JiGm34NtFaKkC5T0mw0HUwOIQvDQRLN7YL87WL3lJcafLKAWgyhlEVB_vqanQd8CqpX8m8ZEME-25nAzwJkJYMGLfMC2-26ceUWMdr6ITEO3pF8Tz3d9P7jT7IhOpVRK9gRlfHm-4Lgz3Dq3CacByP0AyJu4lRwIw1_ymjwEFlthND_qzpDpvQf7-Wggj8Lky8MO2JPx1iYxE9tkylmLldS0-yywBSFdj7v4kREgHwegphgfArarvsMU77y2
