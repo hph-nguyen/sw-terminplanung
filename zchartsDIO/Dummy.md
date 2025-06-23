@@ -129,6 +129,7 @@ Function checkSwExtApptKonflikt(semestername, body):
     return false
 ```
 
+`````
 my-vite-app
 ├── index.html
 ├── package.json
@@ -141,7 +142,7 @@ my-vite-app
 │ ├── assets
 │ │ └── react.svg
 │ └── index.css
-└── .gitignore
+└── .gitignore````
 
 ```js
 import { BrowserRouter } from "react-router";
@@ -172,7 +173,7 @@ export const post = async (path, data, options = {}) => {
   const response = (await httpRequest.post) / put(path, data, options);
   return response;
 };
-```
+`````
 
 1. Berechne neue Startzeit, Endzeit, Dauer, Rhythmus und Wochentag des neuen Termins
 2. Wenn Rhythmus == "BK", bestimme Wochentag anhand Startdatum
@@ -356,3 +357,7 @@ package Terminplanung {
 ```
 
 [![](https://img.plantuml.biz/plantuml/svg/ZLLDJ-Cm4Br7odyOSU_-W1nMK5H0MY7G5cqFAmxUP4X37Jko9mM4-E_hZ4dZn6aXggfatdoyUSzfpoq9GsqjqyJkAjK88sh8TTreXOhMz2OH3EOaL2anJTAa4VbEb0WFQ6gNBuLgLGdlQGBk-ZkA_dYshu-VmAPLDjyImnW2wtoBHIj7iMMRRtsdAstg4BcGQ6Yj78UbC8yTdouSJON5uYT48qybXpHyNbJEUJ4rd-s_-yi_AKrElAhS4kWd654Vqc-8ciLQK6lXrfRP02oWD8WgWxjVOT1WaS7A66t2w1jAgLyos0YZAbLw25N177gPUklwNNlNMDbhx2GXzCizY7-kOsWA9_r6aTEoAY-5TCtPWGEsAYgAJ1lmK61MykZ04pNJ-KFgqMvS5tCRAeUxiL_7Px6MHZSs6ySw8mwlZeqntC_7znM-1E6fRQ5rPtxkPwkpq44suQ9fQDLX4-UyGwzq4bzAdUzqEvlmSOeDBn2JkMmjwNg3kFlZ4hxLa4V3ZL25TCSuRidulMxq7itiYdE7S7Rar5u-9oDv88iScosQolhTkaZkcS8l6SSQGpOzK6DsJ7aYOpXcYdtv0iKOInd-t1tsS1QupxdZptyvQV8V)](https://editor.plantuml.com/uml/ZLLDJ-Cm4Br7odyOSU_-W1nMK5H0MY7G5cqFAmxUP4X37Jko9mM4-E_hZ4dZn6aXggfatdoyUSzfpoq9GsqjqyJkAjK88sh8TTreXOhMz2OH3EOaL2anJTAa4VbEb0WFQ6gNBuLgLGdlQGBk-ZkA_dYshu-VmAPLDjyImnW2wtoBHIj7iMMRRtsdAstg4BcGQ6Yj78UbC8yTdouSJON5uYT48qybXpHyNbJEUJ4rd-s_-yi_AKrElAhS4kWd654Vqc-8ciLQK6lXrfRP02oWD8WgWxjVOT1WaS7A66t2w1jAgLyos0YZAbLw25N177gPUklwNNlNMDbhx2GXzCizY7-kOsWA9_r6aTEoAY-5TCtPWGEsAYgAJ1lmK61MykZ04pNJ-KFgqMvS5tCRAeUxiL_7Px6MHZSs6ySw8mwlZeqntC_7znM-1E6fRQ5rPtxkPwkpq44suQ9fQDLX4-UyGwzq4bzAdUzqEvlmSOeDBn2JkMmjwNg3kFlZ4hxLa4V3ZL25TCSuRidulMxq7itiYdE7S7Rar5u-9oDv88iScosQolhTkaZkcS8l6SSQGpOzK6DsJ7aYOpXcYdtv0iKOInd-t1tsS1QupxdZptyvQV8V)
+
+```
+
+```
