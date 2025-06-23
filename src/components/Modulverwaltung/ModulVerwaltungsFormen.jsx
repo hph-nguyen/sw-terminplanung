@@ -4,6 +4,12 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { Box, Button, TextField } from "@mui/material";
 import { FormInput } from "../formComponents";
 
+/**
+ * Formik-Konfiguration für Modulverwaltung
+ * Diese Komponnent ist nicht verwendet im Projekt,
+ * da die Verwendung der Inline-Tabellebearbeitung für Modulverwaltung wird entgescheidet.
+ */
+
 const initialModulValue = {
   modul_id: "",
   name: "",
