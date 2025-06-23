@@ -129,7 +129,7 @@ Function checkSwExtApptKonflikt(semestername, body):
     return false
 ```
 
-`````
+```
 my-vite-app
 ├── index.html
 ├── package.json
@@ -142,7 +142,8 @@ my-vite-app
 │ ├── assets
 │ │ └── react.svg
 │ └── index.css
-└── .gitignore````
+└── .gitignore
+```
 
 ```js
 import { BrowserRouter } from "react-router";
@@ -173,7 +174,7 @@ export const post = async (path, data, options = {}) => {
   const response = (await httpRequest.post) / put(path, data, options);
   return response;
 };
-`````
+```
 
 1. Berechne neue Startzeit, Endzeit, Dauer, Rhythmus und Wochentag des neuen Termins
 2. Wenn Rhythmus == "BK", bestimme Wochentag anhand Startdatum
