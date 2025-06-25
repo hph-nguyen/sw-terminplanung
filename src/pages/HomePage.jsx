@@ -16,13 +16,13 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import GroupIcon from "@mui/icons-material/Group";
 import OhmLogo from "../assets/OhmLogo.png";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import BookIcon from "@mui/icons-material/Book";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Benutzerverwaltung from "../components/Benutzerverwaltung/Benutzerverwaltung";
 import Terminplanung from "../components/Terminplanung/Terminplanung";
 import Modulverwaltung from "../components/Modulverwaltung/Modulverwaltung";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AccountCircle, EventAvailable, VpnKey } from "@mui/icons-material";
 import Zugangscode from "../components/Zugangscode/Zugangscode";
 import ConfirmDialog from "../shared/ConfirmDialog";
@@ -120,7 +120,7 @@ export default function HomePage() {
   const [openLogOutConfirm, setOpenLogOutConfirm] = useState(false);
   const [selectedItem, setSelectedItem] = useState(() => sessionStorage.getItem("currentTab") || "Modulverwaltung");
   const { logout } = useAuth();
-
+  const currentSemester = useRef(sessionStorage.getItem("currentSemester")?.toUpperCase());
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -157,13 +157,17 @@ export default function HomePage() {
           >
             <MenuIcon />
           </IconButton>
-          <Box
-            component="img"
-            sx={{ maxHeight: { xs: "16vh" }, maxWidth: { xs: "16vh" } }}
-            alt="OhmLogo"
-            src={OhmLogo}
-          />
-          <Box sx={{ ml: "auto" }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+            <Box
+              component="img"
+              sx={{ maxHeight: { xs: "16vh" }, maxWidth: { xs: "16vh" } }}
+              alt="OhmLogo"
+              src={OhmLogo}
+            />
+            <Typography variant="h3" color="primary" fontWeight={500}>
+              {currentSemester.current}
+            </Typography>
+
             <Button variant="outlined" onClick={() => setOpenLogOutConfirm(true)}>
               <AccountCircle sx={{ mr: 1 }} />
               Abmelden

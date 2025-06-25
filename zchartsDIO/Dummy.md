@@ -211,14 +211,14 @@ package Terminplanung {
     [Wunschtermine.jsx]
     [Schedule.jsx]
     [BuchTerminForm.jsx]
-    [AlertSnackBar]
+    [AlertSnackBar.jsx]
 
     Terminplanung.jsx --> Wunschtermine.jsx
     Terminplanung.jsx --> Schedule.jsx
     Wunschtermine.jsx --> BuchTerminForm.jsx
 
 
-    note right of AlertSnackBar
+    note right of AlertSnackBar.jsx
         Http-Satus Msg:
         - green: OK
         - red: Error
@@ -235,7 +235,8 @@ package Terminplanung {
         GeplanteTerminTabelle.jsx --> EditTerminForm.jsx
 
         note right of ReactBigCalendar
-            props:
+            Inline component.
+            Props:
               - components
               - events
               - views
@@ -265,15 +266,16 @@ package Terminplanung {
         ApptEvent.jsx --> EventPopover.jsx
 
         EventPopover.jsx --> EditTerminForm.jsx
-        EditTerminForm.jsx--> AlertSnackBar
+        EditTerminForm.jsx--> AlertSnackBar.jsx
 
     }
 }
 @enduml
 
+
 ```
 
-[![](https://img.plantuml.biz/plantuml/svg/ZLLDJ-Cm4Br7odyOSU_-W1nMK5H0MY7G5cqFAmxUP4X37Jko9mM4-E_hZ4dZn6aXggfatdoyUSzfpoq9GsqjqyJkAjK88sh8TTreXOhMz2OH3EOaL2anJTAa4VbEb0WFQ6gNBuLgLGdlQGBk-ZkA_dYshu-VmAPLDjyImnW2wtoBHIj7iMMRRtsdAstg4BcGQ6Yj78UbC8yTdouSJON5uYT48qybXpHyNbJEUJ4rd-s_-yi_AKrElAhS4kWd654Vqc-8ciLQK6lXrfRP02oWD8WgWxjVOT1WaS7A66t2w1jAgLyos0YZAbLw25N177gPUklwNNlNMDbhx2GXzCizY7-kOsWA9_r6aTEoAY-5TCtPWGEsAYgAJ1lmK61MykZ04pNJ-KFgqMvS5tCRAeUxiL_7Px6MHZSs6ySw8mwlZeqntC_7znM-1E6fRQ5rPtxkPwkpq44suQ9fQDLX4-UyGwzq4bzAdUzqEvlmSOeDBn2JkMmjwNg3kFlZ4hxLa4V3ZL25TCSuRidulMxq7itiYdE7S7Rar5u-9oDv88iScosQolhTkaZkcS8l6SSQGpOzK6DsJ7aYOpXcYdtv0iKOInd-t1tsS1QupxdZptyvQV8V)](https://editor.plantuml.com/uml/ZLLDJ-Cm4Br7odyOSU_-W1nMK5H0MY7G5cqFAmxUP4X37Jko9mM4-E_hZ4dZn6aXggfatdoyUSzfpoq9GsqjqyJkAjK88sh8TTreXOhMz2OH3EOaL2anJTAa4VbEb0WFQ6gNBuLgLGdlQGBk-ZkA_dYshu-VmAPLDjyImnW2wtoBHIj7iMMRRtsdAstg4BcGQ6Yj78UbC8yTdouSJON5uYT48qybXpHyNbJEUJ4rd-s_-yi_AKrElAhS4kWd654Vqc-8ciLQK6lXrfRP02oWD8WgWxjVOT1WaS7A66t2w1jAgLyos0YZAbLw25N177gPUklwNNlNMDbhx2GXzCizY7-kOsWA9_r6aTEoAY-5TCtPWGEsAYgAJ1lmK61MykZ04pNJ-KFgqMvS5tCRAeUxiL_7Px6MHZSs6ySw8mwlZeqntC_7znM-1E6fRQ5rPtxkPwkpq44suQ9fQDLX4-UyGwzq4bzAdUzqEvlmSOeDBn2JkMmjwNg3kFlZ4hxLa4V3ZL25TCSuRidulMxq7itiYdE7S7Rar5u-9oDv88iScosQolhTkaZkcS8l6SSQGpOzK6DsJ7aYOpXcYdtv0iKOInd-t1tsS1QupxdZptyvQV8V)
+[![](https://img.plantuml.biz/plantuml/svg/ZLNBRjim4BmBq3yiSdS-G8SYSU0sHH4ag8FwKFJ0IXjQDKKIvCf9KFJVIvDMH96o4y8mx9rzpCvGzfKbPgZlH5dONIirCwo3MdLQIPIqfbU1OB0c9hd0iYWBpUeTumYFQ3gNBvZi9OU_PG7k_9n4B__Obrz7ODDBMs_9mnW3wtgBJIyciMLVRqEdpyfqCN8jqD1QEWvBPev0WBB9i5XyWcpikUIOIiZBodrUJYzaX_VXX6zIaHEmvLi2zGGP_R7abaWlrenw2tUMLoEm06uGPGNtt-AWmQQ2bJ7AnD5N548zLx1XHhQI1mXbutaCKWqM3liExdc5l-115iAmu2FxxJh6vlYaxyXgMhRyXWdNd9aOMpKjPUQDU2ooL_Fam3CrwVmnzMGtNvTp6ol7JrFFJiywdAzIkAinFZ6NoIruC4hRQXex6FLMO7CCz_FnVOlFKJYrDRRsGlkvnrONiSFUf6kjQNN04cU3Wozq5byALUzKFvlmxnmRlq1EvgQtfBeDukw7I_XGGpyQRfbidFmyR-dn1wNL7itiYdENT7PaQh-_HnDveCeScorAPVreNIRtJE6xZ7EDeKelr9ITfvp868z9iNSVi1ppKgO_YM-xE1lSwyhjuF-Uok8_)](https://editor.plantuml.com/uml/ZLNBRjim4BmBq3yiSdS-G8SYSU0sHH4ag8FwKFJ0IXjQDKKIvCf9KFJVIvDMH96o4y8mx9rzpCvGzfKbPgZlH5dONIirCwo3MdLQIPIqfbU1OB0c9hd0iYWBpUeTumYFQ3gNBvZi9OU_PG7k_9n4B__Obrz7ODDBMs_9mnW3wtgBJIyciMLVRqEdpyfqCN8jqD1QEWvBPev0WBB9i5XyWcpikUIOIiZBodrUJYzaX_VXX6zIaHEmvLi2zGGP_R7abaWlrenw2tUMLoEm06uGPGNtt-AWmQQ2bJ7AnD5N548zLx1XHhQI1mXbutaCKWqM3liExdc5l-115iAmu2FxxJh6vlYaxyXgMhRyXWdNd9aOMpKjPUQDU2ooL_Fam3CrwVmnzMGtNvTp6ol7JrFFJiywdAzIkAinFZ6NoIruC4hRQXex6FLMO7CCz_FnVOlFKJYrDRRsGlkvnrONiSFUf6kjQNN04cU3Wozq5byALUzKFvlmxnmRlq1EvgQtfBeDukw7I_XGGpyQRfbidFmyR-dn1wNL7itiYdENT7PaQh-_HnDveCeScorAPVreNIRtJE6xZ7EDeKelr9ITfvp868z9iNSVi1ppKgO_YM-xE1lSwyhjuF-Uok8_)
 
 ```
 

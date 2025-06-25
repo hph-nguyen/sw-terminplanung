@@ -306,7 +306,7 @@ export default function Schedule({
                 onView={setView}
                 onNavigate={(date) => setDate(dayjs(date))}
                 onSelectSlot={onSlotSelect}
-                // CURRENTLY  draggableAccessor IS NOT AVAILABLE --> timeUtils generateRecurringEvents(), isDraggable set by default as false
+                // CURRENTLY  draggableAccessor IS NOT AVAILABLE, therefor, in timeUtils.jsx generateRecurringEvents(), isDraggable set by default as false
                 draggableAccessor={(event) => !!event.isDraggable}
                 // onEventDrop={onChangeEventTime}
                 resizableAccessor={() => false}
