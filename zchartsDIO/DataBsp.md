@@ -82,7 +82,7 @@
 ```
 
 ```
-my-vite-app
+my-app
 ├── index.html
 ├── package.json
 ├── vite.config.js
@@ -128,7 +128,7 @@ export const post = async (path, data, options = {}) => {
 };
 
 
-```json
+```
 {
   "id": "9",
   "termin_name": " 1.2 Geschichte der Sozialen Arbeit",
@@ -197,8 +197,7 @@ export const post = async (path, data, options = {}) => {
      // von API abgerufte Wunschtermin Obj.
     }
 }
-
-````
+```
 
 ```txt
 https://editor.plantuml.com/uml/VP11JiGm34NtFaKkC5T0mw0HUwOIQvDQRLN7YL87WL3lJcafLKAWgyhlEVB_vqanQd8CqpX8m8ZEME-25nAzwJkJYMGLfMC2-26ceUWMdr6ITEO3pF8Tz3d9P7jT7IhOpVRK9gRlfHm-4Lgz3Dq3CacByP0AyJu4lRwIw1_ymjwEFlthND_qzpDpvQf7-Wggj8Lky8MO2JPx1iYxE9tkylmLldS0-yywBSFdj7v4kREgHwegphgfArarvsMU77y2
@@ -279,4 +278,5 @@ package Terminplanung {
 
 ```
 
-```
+
+````
