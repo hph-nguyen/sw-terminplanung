@@ -81,7 +81,7 @@
 }
 ```
 
-```
+```txt
 my-app
 ├── index.html
 ├── package.json
@@ -97,7 +97,7 @@ my-app
 └── .gitignore
 ```
 
-````js
+```js
 import { BrowserRouter } from "react-router";
 
 ReactDOM.createRoot(root).render(
@@ -126,9 +126,9 @@ export const post = async (path, data, options = {}) => {
   const response = (await httpRequest.post) / put(path, data, options);
   return response;
 };
-
-
 ```
+
+```js
 {
   "id": "9",
   "termin_name": " 1.2 Geschichte der Sozialen Arbeit",
@@ -279,7 +279,7 @@ package Terminplanung {
 ```
 
 
-````
+```
 
 ```json
 {
