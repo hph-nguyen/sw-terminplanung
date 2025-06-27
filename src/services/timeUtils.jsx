@@ -63,6 +63,7 @@ export const generateRecurringEvents = (event, exdates = [], dataKey = "appointm
   const startDate = dayjs(start).tz(tz, true);
   const endDate = dayjs(end).tz(tz, true);
 
+  // Manage DST time offset
   const findDSTTransitions = (start, end) => {
     let transitions = [];
     let current = start;
@@ -111,7 +112,7 @@ export const generateRecurringEvents = (event, exdates = [], dataKey = "appointm
 
     allEvents = allEvents.concat(
       dates
-        .filter((date) => !exdateStrings.has(dayjs(date).format("YYYY-MM-DD")))
+        .filter((date) => !exdateStrings.has(dayjs(date).format("YYYY-MM-DD"))) // filter out feiertage
         .map((date) => {
           const eventStart = dayjs.tz(date, tz).hour(startDate.hour()).minute(startDate.minute());
           const eventEnd = eventStart.add(dauer, "minute");

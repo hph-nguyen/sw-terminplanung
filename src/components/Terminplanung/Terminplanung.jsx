@@ -56,10 +56,8 @@ const Terminplanung = () => {
   const endeSH1 = useRef(null);
 
   const channel = new BroadcastChannel("wunschtermineChannel");
-
   useEffect(() => {
     const handleChannelMessage = async (event) => {
-      // console.log("Terminplanung received message:", event.data);
       if (event.data === "update") {
         fetchAll();
       }
@@ -358,6 +356,7 @@ const Terminplanung = () => {
             appointmentKey
           );
           allEvents.push(...recurring);
+          console.log(recurring);
         } else {
           allEvents.push(event);
         }

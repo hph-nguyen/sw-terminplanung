@@ -137,8 +137,8 @@ const Benutzerverwaltung = () => {
   };
 
   const editBenutzer = async (values) => {
-    console.log(values);
-    console.log(selectedDozent.login);
+    // console.log(values);
+    // console.log(selectedDozent.login);
     try {
       const result = await apiService.editDozent(
         sessionStorage.getItem("currentSemester"),

@@ -280,3 +280,64 @@ package Terminplanung {
 
 
 ````
+
+```json
+{
+  "start": "2024-03-19T07:45:00.000Z",
+  "end": "2024-03-19T11:15:00.000Z",
+  "data": {
+    "appointment": {
+      "id": "2",
+      "color": "blue",
+      "time": "08:45 - 12:15",
+      "details": "1.3 OTIS\nTestsw, Dozent",
+      "rhythmus": "W"
+    }
+  },
+  "isDraggable": false,
+  "resourceId": "BB.006",
+  "rawData": {
+    "id": "2",
+    "termin_name": "1.3 OTIS",
+    "wunschtermin_id": "16",
+    "raum": "BB.006",
+    "anfangszeit": "08:45",
+    "dauer": "210",
+    "status": "geplant",
+    "wochentag": "1",
+    "rhythmus": "W",
+    "start_datum": null,
+    "semesterhaelfte": "0",
+    "benutzer_id": "806",
+    "wunschtermin": {
+      // ...
+    }
+  },
+  "zusatzInfo": ""
+}
+```
+
+```js
+[
+  {
+    modul_id: "5.3",
+    modul_titel: "Test",
+    lectures: ["Neu Lv"],
+  },
+  ...
+];
+```
+
+```js
+import { RRule } from "rrule";
+
+const rule = new RRule({
+  freq: RRule.WEEKLY,
+  interval: 1,
+  byweekday: [RRule.MO, RRule.WE],
+  dtstart: new Date(2025, 5, 24, 10, 0),
+  count: 10,
+});
+
+const termine = rule.all();
+```

@@ -279,7 +279,7 @@ function Modulverwaltung() {
   const handleAddNewModul = async (e) => {
     const res = await apiService.postNewModul(semester, [e]);
     if (res.status === 200) {
-      console.log(res);
+      // console.log(res);
       fetchTableData();
     } else {
       console.log(res);
